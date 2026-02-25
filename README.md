@@ -5,9 +5,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jackpmorgan/projects-cli/releases"><img src="https://img.shields.io/github/v/release/jackpmorgan/projects-cli" alt="Release"></a>
+  <a href="https://github.com/jackmorganxyz/projectsCLI/releases"><img src="https://img.shields.io/github/v/release/jackmorganxyz/projectsCLI" alt="Release"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
-  <a href="https://go.dev/"><img src="https://img.shields.io/github/go-mod/go-version/jackpmorgan/projects-cli?filename=projectsCLI/go.mod" alt="Go Version"></a>
+  <a href="https://go.dev/"><img src="https://img.shields.io/github/go-mod/go-version/jackmorganxyz/projectsCLI?filename=projectsCLI/go.mod" alt="Go Version"></a>
 </p>
 
 ---
@@ -19,7 +19,7 @@ You know that feeling when you open a folder and it's just... vibes? That's what
 ## 🚀 Quick Start
 
 ```sh
-brew install jackpmorgan/tap/projectsCLI
+brew install jackmorganxyz/tap/projectsCLI
 projectsCLI create my-project --title "My Project"
 projectsCLI ls
 ```
@@ -61,17 +61,17 @@ This project has two READMEs because it serves two audiences:
 
 **Homebrew** (recommended):
 ```sh
-brew install jackpmorgan/tap/projectsCLI
+brew install jackmorganxyz/tap/projectsCLI
 ```
 
 **Quick install**:
 ```sh
-curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
 ```
 
 **From source**:
 ```sh
-git clone https://github.com/jackpmorgan/projects-cli.git
+git clone https://github.com/jackmorganxyz/projectsCLI.git
 cd projects-cli && make build && make install
 ```
 
@@ -94,14 +94,14 @@ projectsCLI ships with an [Agent Skill](https://agentskills.io) — a portable i
 **Install the skill (Claude Code):**
 
 ```sh
-claude install-skill https://github.com/jackpmorgan/projects-cli/tree/main/skill/projects-cli
+claude install-skill https://github.com/jackmorganxyz/projectsCLI/tree/main/skill/projects-cli
 ```
 
 **Or copy it manually** into your agent's skills directory:
 
 ```sh
 # Clone just the skill
-git clone --depth 1 --filter=blob:none --sparse https://github.com/jackpmorgan/projects-cli.git
+git clone --depth 1 --filter=blob:none --sparse https://github.com/jackmorganxyz/projectsCLI.git
 cd projects-cli && git sparse-checkout set skill/projects-cli
 cp -r skill/projects-cli ~/.claude/skills/projects-cli
 ```

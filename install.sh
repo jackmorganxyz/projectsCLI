@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-REPO="jackpmorgan/projects-cli"
+REPO="jackmorganxyz/projectsCLI"
 BINARY="projectsCLI"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 

@@ -35,13 +35,13 @@ One command to scaffold. One command to push. A dashboard to see everything at a
 ### Homebrew (recommended, civilized)
 
 ```sh
-brew install jackpmorgan/tap/projectsCLI
+brew install jackmorganxyz/tap/projectsCLI
 ```
 
 ### Quick install script (for the impatient)
 
 ```sh
-curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
 ```
 
 Auto-detects your OS and architecture. Installs to `/usr/local/bin`. It's smarter than it looks.
@@ -49,7 +49,7 @@ Auto-detects your OS and architecture. Installs to `/usr/local/bin`. It's smarte
 ### Build from source (respect)
 
 ```sh
-git clone https://github.com/jackpmorgan/projects-cli.git
+git clone https://github.com/jackmorganxyz/projectsCLI.git
 cd projects-cli
 make build
 make install  # copies to /usr/local/bin

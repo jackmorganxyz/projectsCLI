@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackpmorgan/projectsCLI/internal/cli"
-	"github.com/jackpmorgan/projectsCLI/internal/config"
-	"github.com/jackpmorgan/projectsCLI/internal/tui"
+	"github.com/jackmorganxyz/projectsCLI/internal/cli"
+	"github.com/jackmorganxyz/projectsCLI/internal/config"
+	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
 

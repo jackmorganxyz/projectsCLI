@@ -6,7 +6,7 @@ Thanks for your interest in contributing! Whether it's a bug fix, new feature, o
 
 ```bash
 # Clone the repo
-git clone https://github.com/jackpmorgan/projects-cli.git
+git clone https://github.com/jackmorganxyz/projectsCLI.git
 cd projects-cli
 
 # Build the binary
@@ -84,8 +84,8 @@ projectsCLI/
 
 ## Reporting Bugs
 
-Use the [bug report template](https://github.com/jackpmorgan/projects-cli/issues/new?template=bug_report.yml) on GitHub.
+Use the [bug report template](https://github.com/jackmorganxyz/projectsCLI/issues/new?template=bug_report.yml) on GitHub.
 
 ## Feature Requests
 
-Use the [feature request template](https://github.com/jackpmorgan/projects-cli/issues/new?template=feature_request.yml) on GitHub.
+Use the [feature request template](https://github.com/jackmorganxyz/projectsCLI/issues/new?template=feature_request.yml) on GitHub.

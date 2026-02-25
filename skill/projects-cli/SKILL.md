@@ -4,9 +4,9 @@ description: Manage projects with projectsCLI — scaffold, list, view, edit, pu
 license: MIT
 compatibility: Requires projectsCLI binary installed. Optional gh CLI for GitHub integration.
 metadata:
-  author: jackpmorgan
+  author: jackmorganxyz
   version: "1.0"
-  repository: "https://github.com/jackpmorgan/projects-cli"
+  repository: "https://github.com/jackmorganxyz/projectsCLI"
 ---
 
 # projectsCLI Agent Skill
@@ -44,10 +44,10 @@ If not installed, the user can install via:
 
 ```sh
 # Homebrew (recommended)
-brew install jackpmorgan/tap/projectsCLI
+brew install jackmorganxyz/tap/projectsCLI
 
 # Shell script
-curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
 ```
 
 ## Commands Quick Reference

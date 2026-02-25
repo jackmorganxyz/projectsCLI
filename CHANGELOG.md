@@ -34,6 +34,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Project scaffolding with docs, memory, context, tasks directories
 - Auto-generated PROJECTS.md registry
 - Random quips, celebrations, tips, and personality
-- Homebrew tap (`jackpmorgan/tap/projectsCLI`)
+- Homebrew tap (`jackmorganxyz/tap/projectsCLI`)
 - Install script (`install.sh`)
 - Automated release pipeline with GoReleaser and GitHub Actions

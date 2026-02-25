@@ -13,7 +13,7 @@ If you discover a security vulnerability in projectsCLI, please report it respon
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, please email the maintainer directly or use [GitHub's private vulnerability reporting](https://github.com/jackpmorgan/projects-cli/security/advisories/new).
+Instead, please email the maintainer directly or use [GitHub's private vulnerability reporting](https://github.com/jackmorganxyz/projectsCLI/security/advisories/new).
 
 ## Scope
 

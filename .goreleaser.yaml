@@ -47,11 +47,11 @@ brews:
   - ids:
       - projectsCLI
     repository:
-      owner: jackpmorgan
+      owner: jackmorganxyz
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Formula
-    homepage: "https://github.com/jackpmorgan/projects-cli"
+    homepage: "https://github.com/jackmorganxyz/projectsCLI"
     description: "Manage project scaffolds from the command line"
     license: "MIT"
     install: |
@@ -61,6 +61,6 @@ brews:
 
 release:
   github:
-    owner: jackpmorgan
+    owner: jackmorganxyz
     name: projects-cli
   name_template: "v{{.Version}}"

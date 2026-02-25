@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jackpmorgan/projectsCLI/internal/project"
-	"github.com/jackpmorgan/projectsCLI/internal/tui"
+	"github.com/jackmorganxyz/projectsCLI/internal/project"
+	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
 

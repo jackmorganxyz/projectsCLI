@@ -3,9 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/jackpmorgan/projectsCLI/internal/git"
-	"github.com/jackpmorgan/projectsCLI/internal/project"
-	"github.com/jackpmorgan/projectsCLI/internal/tui"
+	"github.com/jackmorganxyz/projectsCLI/internal/git"
+	"github.com/jackmorganxyz/projectsCLI/internal/project"
+	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
 

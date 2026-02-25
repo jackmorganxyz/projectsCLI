@@ -16,10 +16,10 @@ Machine-readable reference for AI agents, scripts, and automation.
 
 ```sh
 # Homebrew
-brew install jackpmorgan/tap/projectsCLI
+brew install jackmorganxyz/tap/projectsCLI
 
 # Shell script
-curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
 ```
 
 ## Global Flags

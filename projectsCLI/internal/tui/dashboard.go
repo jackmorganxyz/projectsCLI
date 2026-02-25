@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/jackpmorgan/projectsCLI/internal/project"
+	"github.com/jackmorganxyz/projectsCLI/internal/project"
 )
 
 // DashboardModel displays the project list with colored status.
