@@ -10,6 +10,8 @@ import (
 
 // NewListCmd lists all projects.
 func NewListCmd() *cobra.Command {
+	var field string
+
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"ls"},
@@ -23,6 +25,22 @@ func NewListCmd() *cobra.Command {
 			projects, err := project.ListProjects(runtime.Config.ProjectsDir)
 			if err != nil {
 				return err
+			}
+
+			// Handle --field flag for field extraction
+			if field != "" {
+				if len(projects) == 0 {
+					return nil
+				}
+				// For list, we extract field from each project
+				for _, p := range projects {
+					val, err := extractField(p, field)
+					if err != nil {
+						return err
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), val)
+				}
+				return nil
 			}
 
 			if tui.IsJSON() {
@@ -59,6 +77,8 @@ func NewListCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&field, "field", "", "extract specific field from JSON output (e.g. --field dir, --field meta.title)")
 
 	return cmd
 }

@@ -82,6 +82,7 @@ func newRootCmd() *cobra.Command {
 		cli.NewOpenCmd(),
 		cli.NewStatusCmd(),
 		cli.NewPushCmd(),
+		cli.NewUpdateCmd(),
 	)
 
 	return rootCmd
