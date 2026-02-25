@@ -43,6 +43,22 @@ changelog:
       - "^ci:"
       - "^chore:"
 
+brews:
+  - ids:
+      - projctl
+    repository:
+      owner: jackpmorgan
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/jackpmorgan/projects-cli"
+    description: "Manage project scaffolds from the command line"
+    license: "MIT"
+    install: |
+      bin.install "projctl"
+    test: |
+      system "#{bin}/projctl", "--version"
+
 release:
   github:
     owner: jackpmorgan
