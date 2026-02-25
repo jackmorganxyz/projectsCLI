@@ -30,10 +30,16 @@ func newRootCmd() *cobra.Command {
 
 	rootCmd := &cobra.Command{
 		Use:          "projctl",
-		Short:        "Manage project scaffolds",
+		Short:        "Manage project scaffolds ✨",
 		Long:         "projctl manages project scaffolds under ~/.openclaw/projects/.\nAgents use it via projctl <command> --json; humans get a polished TUI.",
 		Version:      version,
 		SilenceUsage: true,
+		Run: func(cmd *cobra.Command, _ []string) {
+			if !tui.IsJSON() && tui.IsInteractive() {
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Banner())
+			}
+			_ = cmd.Help()
+		},
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			if err := config.EnsureDirs(); err != nil {
 				return fmt.Errorf("create directories: %w", err)

@@ -37,7 +37,7 @@ func NewPushCmd() *cobra.Command {
 
 			// Ensure git is initialized.
 			if !git.IsRepo(dir) {
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Initializing git repository..."))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Setting up git... first commits are special."))
 				if err := git.Init(dir); err != nil {
 					return fmt.Errorf("git init: %w", err)
 				}
@@ -60,9 +60,9 @@ func NewPushCmd() *cobra.Command {
 				if err := git.Commit(dir, message); err != nil {
 					return fmt.Errorf("git commit: %w", err)
 				}
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage("Changes committed"))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage("Changes committed. "+tui.RandomPushCheer()))
 			} else {
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("No changes to commit"))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted(tui.RandomNoChanges()))
 			}
 
 			// Create remote if needed.
@@ -72,7 +72,7 @@ func NewPushCmd() *cobra.Command {
 				}
 
 				org := runtime.Config.GitHubOrg
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Creating GitHub repository..."))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Creating GitHub repo... your code deserves a home."))
 				repoURL, err := git.CreateRepo(dir, slug, org, private)
 				if err != nil {
 					return fmt.Errorf("create repo: %w", err)
@@ -94,7 +94,10 @@ func NewPushCmd() *cobra.Command {
 				if err := git.PushSetUpstream(dir, "origin", branch); err != nil {
 					return fmt.Errorf("git push: %w", err)
 				}
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage("Pushed to remote"))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage("Pushed to remote. "+tui.RandomPushCheer()))
+				if tip := tui.MaybeTip(); tip != "" {
+					fmt.Fprintln(cmd.ErrOrStderr(), tip)
+				}
 			}
 
 			if tui.IsJSON() {

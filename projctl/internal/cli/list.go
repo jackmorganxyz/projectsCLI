@@ -30,7 +30,7 @@ func NewListCmd() *cobra.Command {
 			}
 
 			if len(projects) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), tui.Muted("No projects yet. Run 'projctl create <slug>' to get started."))
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomEmptyState()))
 				return nil
 			}
 

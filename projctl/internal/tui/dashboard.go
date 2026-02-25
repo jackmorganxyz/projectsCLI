@@ -92,7 +92,7 @@ func (m DashboardModel) View() string {
 		Foreground(lipgloss.Color(ColorMuted)).
 		MarginTop(1)
 
-	view := titleStyle.Render("Projects") + "\n\n"
+	view := titleStyle.Render("📋 Projects") + "\n\n"
 	view += m.table.View() + "\n"
 	view += helpStyle.Render(fmt.Sprintf("  %d projects | j/k navigate | enter select | q quit", len(m.projects)))
 

@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	ColorPrimary = "#7C3AED" // Violet
-	ColorSuccess = "#10B981" // Emerald
-	ColorError   = "#EF4444" // Red
-	ColorWarning = "#F59E0B" // Amber
-	ColorMuted   = "#6B7280" // Gray
-	ColorInfo    = "#3B82F6" // Blue
+	ColorPrimary = "#8B5CF6" // Violet (bright)
+	ColorSuccess = "#34D399" // Emerald (bright)
+	ColorError   = "#F87171" // Red (soft)
+	ColorWarning = "#FBBF24" // Amber (bright)
+	ColorMuted   = "#9CA3AF" // Gray (lighter)
+	ColorInfo    = "#60A5FA" // Blue (bright)
 )
 
 // Theme contains shared styles for projctl terminal rendering.
@@ -81,19 +81,24 @@ func NewTheme() Theme {
 // Header renders a section header.
 func Header(text string) string { return DefaultTheme.headerStyle.Render(text) }
 
-// SuccessMessage renders a success message with checkmark.
+// SuccessMessage renders a success message with emoji prefix.
 func SuccessMessage(text string) string {
-	return DefaultTheme.successStyle.Render("ok " + text)
+	return DefaultTheme.successStyle.Render(SuccessEmoji() + text)
 }
 
-// ErrorMessage renders an error message with X mark.
+// ErrorMessage renders an error message with emoji prefix.
 func ErrorMessage(text string) string {
-	return DefaultTheme.errorStyle.Render("err " + text)
+	return DefaultTheme.errorStyle.Render(ErrorEmoji() + text)
 }
 
-// WarningMessage renders a warning message.
+// WarningMessage renders a warning message with emoji prefix.
 func WarningMessage(text string) string {
-	return DefaultTheme.warningStyle.Render("warn " + text)
+	return DefaultTheme.warningStyle.Render(WarningEmoji() + text)
+}
+
+// InfoMessage renders an informational message with emoji prefix.
+func InfoMessage(text string) string {
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(ColorInfo)).Bold(true).Render(InfoEmoji() + text)
 }
 
 // Muted renders muted/dimmed text.
