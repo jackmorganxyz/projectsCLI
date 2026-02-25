@@ -1,4 +1,4 @@
-<h1 align="center">projectsCLI</h1>
+<h1 align="center">projects</h1>
 
 <p align="center">
   <em>Less chaos, more shipping. Built for humans and agents. ✨</em>
@@ -17,9 +17,9 @@ A terminal-native project manager with a gorgeous TUI, JSON output for automatio
 ## 🚀 Quick Start
 
 ```sh
-brew install jackmorganxyz/tap/projectsCLI
-projectsCLI create my-project --title "My Project"
-projectsCLI ls
+brew install jackmorganxyz/tap/projects
+projects create --title "My Project"
+projects ls
 ```
 
 Three commands. You now have a scaffolded project with docs, memory files, task tracking, and a git repo.
@@ -40,16 +40,18 @@ This project has two READMEs because it serves two audiences:
 - **Auto JSON mode** — Pipe any command and output switches from TUI to clean JSON automatically. Machines have feelings too
 - **One-command GitHub push** — `push` handles git init, commit, repo creation, and push in a single step. Yes, really
 - **Portfolio health checks** — `status` shows git state, remotes, and uncommitted changes across all projects
+- **Smart slug generation** — Just provide a title and the slug is auto-generated for you
 - **Personality included** — Random quips, celebrations, and tips because dev tools should spark joy, not existential dread
 
 ## 🎯 Commands at a Glance
 
 | Command | What it does |
 |---------|-------------|
-| `create <slug>` | Scaffold a new project — instant structure, zero decisions |
+| `create [slug]` | Scaffold a new project — slug auto-generated from `--title` if omitted |
 | `list` / `ls` | Dashboard of all projects (gorgeous TUI or clean JSON) |
 | `view <slug>` | Project details in a scrollable, styled view |
-| `edit <slug>` | Open PROJECT.md in your editor of choice |
+| `edit <slug>` | Open PROJECT.md in your OS default application |
+| `open <slug>` | Open the project folder in Finder / Explorer / file manager |
 | `load <slug>` | Export project data for scripts (`--json`, `--export`, `--bash`) |
 | `delete <slug>` / `rm` | Delete a project (with appropriately dramatic confirmation prompts) |
 | `status` | Health check across all projects — your morning standup, minus the standing |
@@ -59,7 +61,7 @@ This project has two READMEs because it serves two audiences:
 
 **Homebrew** (recommended):
 ```sh
-brew install jackmorganxyz/tap/projectsCLI
+brew install jackmorganxyz/tap/projects
 ```
 
 **Quick install**:
@@ -79,15 +81,15 @@ cd projectsCLI && make build && make install
 # ~/.projects/config.toml
 projects_dir = "~/.projects/projects"
 editor = "nvim"
-github_org = "my-org"
+github_username = "my-username"
 auto_git_init = true
 ```
 
-All fields are optional. Sensible defaults are built in — we're not here to make you configure things.
+All fields are optional. Sensible defaults are built in — we're not here to make you configure things. `github_username` and `auto_git_init` are prompted during first-run setup.
 
 ## 🤖 Agent Skill
 
-projectsCLI ships with an [Agent Skill](https://agentskills.io) — a portable instruction set that teaches AI agents how to use the CLI. Compatible with Claude Code, and any agent that supports the [Agent Skills format](https://github.com/agentskills/agentskills).
+projects ships with an [Agent Skill](https://agentskills.io) — a portable instruction set that teaches AI agents how to use the CLI. Compatible with Claude Code, and any agent that supports the [Agent Skills format](https://github.com/agentskills/agentskills).
 
 **Install the skill (Claude Code):**
 

@@ -1,21 +1,21 @@
 ---
 name: projects-cli
-description: Manage projects with projectsCLI — scaffold, list, view, edit, push, and delete projects from the terminal. Use this skill when the user wants to create a new project, organize existing projects, check project health, push to GitHub, or work with projectsCLI commands and project metadata.
+description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, and delete projects from the terminal. Use this skill when the user wants to create a new project, organize existing projects, check project health, push to GitHub, or work with projects commands and project metadata.
 license: MIT
-compatibility: Requires projectsCLI binary installed. Optional gh CLI for GitHub integration.
+compatibility: Requires projects binary installed. Optional gh CLI for GitHub integration.
 metadata:
   author: jackmorganxyz
-  version: "1.0"
+  version: "1.1"
   repository: "https://github.com/jackmorganxyz/projectsCLI"
 ---
 
-# projectsCLI Agent Skill
+# projects Agent Skill
 
-You are working with **projectsCLI**, a terminal-native project manager. It scaffolds projects with a consistent directory structure, tracks metadata in YAML frontmatter, provides a TUI dashboard for humans, and outputs clean JSON for agents and scripts.
+You are working with **projects**, a terminal-native project manager. It scaffolds projects with a consistent directory structure, tracks metadata in YAML frontmatter, provides a TUI dashboard for humans, and outputs clean JSON for agents and scripts.
 
 ## Key Concepts
 
-- **Binary**: `projectsCLI`
+- **Binary**: `projects`
 - **Config**: `~/.projects/config.toml` (TOML)
 - **Projects directory**: `~/.projects/projects/` (configurable)
 - **Project source of truth**: `<project-dir>/PROJECT.md` (YAML frontmatter + Markdown body)
@@ -23,7 +23,7 @@ You are working with **projectsCLI**, a terminal-native project manager. It scaf
 
 ## When to Use This Skill
 
-Use projectsCLI when the user wants to:
+Use projects when the user wants to:
 - Create or scaffold a new project
 - List, view, or search across their projects
 - Check the health/status of projects (git state, remotes, uncommitted changes)
@@ -31,20 +31,21 @@ Use projectsCLI when the user wants to:
 - Load project metadata into shell variables for scripting
 - Delete a project
 - Edit project metadata or notes
+- Open a project folder in the OS file manager
 
 ## Installation Check
 
-Before using projectsCLI, verify it is installed:
+Before using projects, verify it is installed:
 
 ```sh
-which projectsCLI
+which projects
 ```
 
 If not installed, the user can install via:
 
 ```sh
 # Homebrew (recommended)
-brew install jackmorganxyz/tap/projectsCLI
+brew install jackmorganxyz/tap/projects
 
 # Shell script
 curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
@@ -54,10 +55,11 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 
 | Command | Alias | Purpose |
 |---------|-------|---------|
-| `create <slug>` | — | Scaffold a new project |
+| `create [slug]` | — | Scaffold a new project (slug auto-generated from `--title` if omitted) |
 | `list` | `ls` | List all projects (TUI or JSON) |
 | `view <slug>` | — | View project details |
-| `edit <slug>` | — | Open PROJECT.md in editor |
+| `edit <slug>` | — | Open PROJECT.md in OS default application |
+| `open <slug>` | — | Open project folder in OS file manager (Finder, Explorer, etc.) |
 | `load <slug>` | — | Export project data (JSON, shell vars) |
 | `delete <slug>` | `rm` | Delete a project |
 | `status` | — | Health check across all projects |
@@ -75,41 +77,47 @@ All commands support:
 **Always use `--json` or pipe output** to get structured data instead of TUI output:
 
 ```sh
-projectsCLI ls --json
-projectsCLI view my-project --json
-projectsCLI status --json
+projects ls --json
+projects view my-project --json
+projects status --json
 ```
 
 **For non-interactive deletion**, always pass `--force`:
 
 ```sh
-projectsCLI delete my-project --force --json
+projects delete my-project --force --json
 ```
 
 **To load project data into the environment**:
 
 ```sh
-eval $(projectsCLI load my-project --export)
+eval $(projects load my-project --export)
 # Now available: $PROJECT_SLUG, $PROJECT_TITLE, $PROJECT_STATUS, $PROJECT_DIR, etc.
 ```
 
 ## Creating a Project
 
 ```sh
-projectsCLI create <slug> [flags] --json
+projects create [slug] [flags] --json
 ```
 
 **Slug rules**: lowercase alphanumeric + hyphens only, max 64 chars, regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`
 
+If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool Project"` produces slug `my-cool-project`).
+
 **Flags**:
-- `--title <string>` — Display name (defaults to slug)
+- `--title <string>` — Display name (defaults to slug if slug is provided)
 - `--description <string>` — Short description
 - `--tags <string>` — Comma-separated tags (e.g., `"go,api,backend"`)
 - `--status <string>` — `active` (default), `paused`, or `archived`
 
-**Example**:
+**Examples**:
 ```sh
-projectsCLI create my-api --title "My API" --tags "go,api" --description "REST API service" --json
+# Explicit slug
+projects create my-api --title "My API" --tags "go,api" --description "REST API service" --json
+
+# Auto-generate slug from title
+projects create --title "My API" --tags "go,api" --json
 ```
 
 **JSON response**:
@@ -122,7 +130,7 @@ projectsCLI create my-api --title "My API" --tags "go,api" --description "REST A
 ## Listing Projects
 
 ```sh
-projectsCLI ls --json
+projects ls --json
 ```
 
 **JSON response**: Array of project objects, each with `meta`, `body`, and `dir` fields.
@@ -134,7 +142,7 @@ projectsCLI ls --json
 ## Viewing a Project
 
 ```sh
-projectsCLI view <slug> --json
+projects view <slug> --json
 ```
 
 Returns a single project object (same shape as one element from `list`).
@@ -142,7 +150,7 @@ Returns a single project object (same shape as one element from `list`).
 ## Checking Project Health
 
 ```sh
-projectsCLI status --json
+projects status --json
 ```
 
 **JSON response**:
@@ -153,16 +161,16 @@ projectsCLI status --json
 **Useful queries**:
 ```sh
 # Projects with uncommitted changes
-projectsCLI status --json | jq '.[] | select(.uncommitted == true) | .slug'
+projects status --json | jq '.[] | select(.uncommitted == true) | .slug'
 
 # Projects without a remote
-projectsCLI status --json | jq '.[] | select(.has_remote == false and .has_git == true) | .slug'
+projects status --json | jq '.[] | select(.has_remote == false and .has_git == true) | .slug'
 ```
 
 ## Pushing to GitHub
 
 ```sh
-projectsCLI push <slug> -m "commit message" --json
+projects push <slug> -m "commit message" --json
 ```
 
 **Flags**:
@@ -183,13 +191,13 @@ projectsCLI push <slug> -m "commit message" --json
 
 ```sh
 # JSON (default)
-projectsCLI load <slug> --json
+projects load <slug> --json
 
 # Shell export statements
-projectsCLI load <slug> --export
+projects load <slug> --export
 
 # Eval-able bash variables
-projectsCLI load <slug> --bash
+projects load <slug> --bash
 ```
 
 Exported variables: `PROJECT_SLUG`, `PROJECT_TITLE`, `PROJECT_STATUS`, `PROJECT_DIR`, `PROJECT_DESCRIPTION`, `PROJECT_TAGS`, `PROJECT_GIT_REMOTE`.
@@ -197,7 +205,7 @@ Exported variables: `PROJECT_SLUG`, `PROJECT_TITLE`, `PROJECT_STATUS`, `PROJECT_
 ## Deleting a Project
 
 ```sh
-projectsCLI delete <slug> --force --json
+projects delete <slug> --force --json
 ```
 
 **Important**: `--force` is required in non-interactive (piped/scripted) mode. Without it, the command errors.
@@ -208,6 +216,14 @@ projectsCLI delete <slug> --force --json
 ```
 
 **This permanently removes the entire project directory.**
+
+## Opening a Project Folder
+
+```sh
+projects open <slug>
+```
+
+Opens the project directory in the OS file manager (Finder on macOS, Explorer on Windows, xdg-open on Linux).
 
 ## Project Directory Structure
 
@@ -252,9 +268,11 @@ Config at `~/.projects/config.toml`:
 ```toml
 projects_dir = "~/.projects/projects"
 editor = "vim"
-github_org = ""
+github_username = ""
 auto_git_init = true
 ```
+
+These values are set interactively during first-run setup. `github_username` and `auto_git_init` are prompted at install time.
 
 ## Reading Project Files Directly
 
@@ -278,25 +296,25 @@ cat ~/.projects/projects/<slug>/tasks/TODO.md
 
 ### Create and push a new project
 ```sh
-projectsCLI create my-service --title "My Service" --tags "python,api" --json
-projectsCLI push my-service -m "Initial scaffold" --json
+projects create --title "My Service" --tags "python,api" --json
+projects push my-service -m "Initial scaffold" --json
 ```
 
 ### Audit all projects
 ```sh
-projectsCLI status --json | jq '.'
+projects status --json | jq '.'
 ```
 
 ### Find and fix dirty projects
 ```sh
-for slug in $(projectsCLI status --json | jq -r '.[] | select(.uncommitted == true) | .slug'); do
-  projectsCLI push "$slug" -m "Auto-commit changes" --json
+for slug in $(projects status --json | jq -r '.[] | select(.uncommitted == true) | .slug'); do
+  projects push "$slug" -m "Auto-commit changes" --json
 done
 ```
 
 ### Get a project's directory path
 ```sh
-projectsCLI view my-project --json | jq -r '.dir'
+projects view my-project --json | jq -r '.dir'
 ```
 
 For the full command specification with all flags, arguments, validation rules, and JSON schemas, see [references/REFERENCE.md](references/REFERENCE.md).

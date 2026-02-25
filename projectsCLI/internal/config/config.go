@@ -12,7 +12,7 @@ import (
 type Config struct {
 	ProjectsDir string `toml:"projects_dir,omitempty"`
 	Editor      string `toml:"editor,omitempty"`
-	GitHubOrg   string `toml:"github_org,omitempty"`
+	GitHubUsername string `toml:"github_username,omitempty"`
 	AutoGitInit bool   `toml:"auto_git_init"`
 }
 

@@ -29,9 +29,9 @@ func newRootCmd() *cobra.Command {
 	configPath := defaultConfigPath
 
 	rootCmd := &cobra.Command{
-		Use:          "projectsCLI",
+		Use:          "projects",
 		Short:        "Manage project scaffolds ✨",
-		Long:         "projectsCLI manages project scaffolds under ~/.projects/projects/.\nAgents use it via projectsCLI <command> --json; humans get a polished TUI.",
+		Long:         "projects manages project scaffolds under ~/.projects/projects/.\nAgents use it via projects <command> --json; humans get a polished TUI.",
 		Version:      version,
 		SilenceUsage: true,
 		Run: func(cmd *cobra.Command, _ []string) {
@@ -79,6 +79,7 @@ func newRootCmd() *cobra.Command {
 		cli.NewDeleteCmd(),
 		cli.NewViewCmd(),
 		cli.NewEditCmd(),
+		cli.NewOpenCmd(),
 		cli.NewStatusCmd(),
 		cli.NewPushCmd(),
 	)

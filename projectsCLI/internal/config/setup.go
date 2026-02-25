@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -50,7 +51,7 @@ func RunSetup() (Config, error) {
 	// Always print the welcome banner.
 	fmt.Println()
 	fmt.Println(boxStyle.Render(
-		primaryStyle.Render("projectsCLI") + mutedStyle.Render(" — first time? nice."),
+		primaryStyle.Render("projects") + mutedStyle.Render(" — first time? nice."),
 	))
 	fmt.Println()
 
@@ -61,7 +62,7 @@ func RunSetup() (Config, error) {
 		fmt.Println(infoStyle.Render("  👀 Well, well, well..."))
 		fmt.Println(mutedStyle.Render("  Looks like you've got an openclaw setup at " + openclawDir))
 		fmt.Println()
-		fmt.Println(mutedStyle.Render("  projectsCLI can store projects inside your openclaw folder"))
+		fmt.Println(mutedStyle.Render("  projects can store projects inside your openclaw folder"))
 		fmt.Println(mutedStyle.Render("  (cozy roommates) or keep its own space (independent vibes)."))
 		fmt.Println()
 
@@ -76,6 +77,36 @@ func RunSetup() (Config, error) {
 		fmt.Println(mutedStyle.Render("  Setting up your projects home at ~/.projects/"))
 		fmt.Println(mutedStyle.Render("  Config, projects, everything in one tidy spot."))
 	}
+
+	// Ask for GitHub username and auto-git preference.
+	var ghUsername string
+	var autoGit bool
+
+	theme := huh.ThemeBase()
+	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(colorPrimary))
+
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewInput().
+				Title("GitHub username").
+				Description("Used when creating repos with `push` (leave blank to skip)").
+				Placeholder("octocat").
+				Value(&ghUsername),
+
+			huh.NewConfirm().
+				Title("Auto-initialize git for new projects?").
+				Value(&autoGit).
+				Affirmative("Yes").
+				Negative("No"),
+		),
+	).WithTheme(theme)
+
+	if err := form.Run(); err != nil {
+		return cfg, fmt.Errorf("setup cancelled: %w", err)
+	}
+
+	cfg.GitHubUsername = ghUsername
+	cfg.AutoGitInit = autoGit
 
 	// Ensure the directories exist.
 	if err := EnsureDirs(); err != nil {

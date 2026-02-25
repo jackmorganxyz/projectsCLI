@@ -1,4 +1,4 @@
-# Contributing to projectsCLI
+# Contributing to projects
 
 Thanks for your interest in contributing! Whether it's a bug fix, new feature, or documentation improvement, we appreciate the help.
 
@@ -29,17 +29,18 @@ make run ARGS="create test-project --title 'Test Project'"
 
 ```
 projectsCLI/
-├── cmd/projectsCLI/
+├── cmd/projects/
 │   └── main.go              # Entry point, Cobra root command
 ├── internal/
 │   ├── cli/                  # Command implementations
 │   │   ├── context.go        # Runtime context (config passing)
 │   │   ├── create.go         # create command
 │   │   ├── delete.go         # delete/rm command
-│   │   ├── edit.go           # edit command
-│   │   ├── helpers.go        # JSON output, slug validation
+│   │   ├── edit.go           # edit command (OS default app)
+│   │   ├── helpers.go        # JSON output, slug validation, Slugify
 │   │   ├── list.go           # list/ls command
 │   │   ├── load.go           # load command (agent data export)
+│   │   ├── open.go           # open command (OS file manager)
 │   │   ├── push.go           # push command (git workflow)
 │   │   ├── status.go         # status command (health check)
 │   │   └── view.go           # view command
@@ -79,7 +80,7 @@ projectsCLI/
    - `NewXxxCmd()` returns a `*cobra.Command`
    - Handle JSON mode via `tui.IsJSON()`
    - Handle interactive mode via `tui.IsInteractive()`
-3. Register it in `cmd/projectsCLI/main.go` via `rootCmd.AddCommand()`
+3. Register it in `cmd/projects/main.go` via `rootCmd.AddCommand()`
 4. Add flair strings to `tui/flair.go` for any celebratory messages
 
 ## Reporting Bugs

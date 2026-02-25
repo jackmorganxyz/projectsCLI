@@ -20,17 +20,30 @@ func NewCreateCmd() *cobra.Command {
 	)
 
 	cmd := &cobra.Command{
-		Use:   "create <slug>",
+		Use:   "create [slug]",
 		Short: "Create a new project",
-		Long:  "Create a new project scaffold with directory structure and template files.",
-		Args:  cobra.ExactArgs(1),
+		Long: `Create a new project scaffold with directory structure and template files.
+
+If slug is omitted, it is generated from --title.`,
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runtime, ok := RuntimeFromContext(cmd.Context())
 			if !ok {
 				return fmt.Errorf("missing runtime context")
 			}
 
-			slug := args[0]
+			var slug string
+			if len(args) == 1 {
+				slug = args[0]
+			} else if title != "" {
+				slug = Slugify(title)
+				if slug == "" {
+					return fmt.Errorf("could not generate a valid slug from title %q", title)
+				}
+			} else {
+				return fmt.Errorf("provide a slug argument or --title to auto-generate one")
+			}
+
 			if err := ValidateSlug(slug); err != nil {
 				return err
 			}

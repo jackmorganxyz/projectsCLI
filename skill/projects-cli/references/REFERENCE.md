@@ -1,4 +1,4 @@
-# projectsCLI — Full Command Reference
+# projects — Full Command Reference
 
 Complete specification of every command, flag, argument, and JSON output schema.
 
@@ -12,7 +12,7 @@ Complete specification of every command, flag, argument, and JSON output schema.
 
 ---
 
-## `create <slug>`
+## `create [slug]`
 
 Create a new project scaffold.
 
@@ -20,13 +20,15 @@ Create a new project scaffold.
 
 | Arg | Required | Type | Validation |
 |-----|----------|------|------------|
-| `slug` | yes | string | Regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`, max 64 chars |
+| `slug` | no | string | Regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`, max 64 chars |
+
+If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool Project"` produces slug `my-cool-project`). Either a slug argument or `--title` must be provided.
 
 ### Flags
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--title` | string | slug value | Project title |
+| `--title` | string | slug value | Project title (required if slug is omitted) |
 | `--description` | string | `""` | Project description |
 | `--tags` | []string | `[]` | Comma-separated tags |
 | `--status` | string | `"active"` | Initial status (`active`, `paused`, `archived`) |
@@ -181,7 +183,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 
 ## `edit <slug>`
 
-Open project's `PROJECT.md` in configured editor.
+Open project's `PROJECT.md` in the OS default application (e.g. TextEdit on macOS).
 
 ### Arguments
 
@@ -195,9 +197,37 @@ None.
 
 ### Side Effects
 
-Launches editor (config `editor` > `$EDITOR` > `vim`) with the project's `PROJECT.md`.
+Opens `PROJECT.md` with the OS default application for `.md` files:
+- **macOS**: `open` (typically TextEdit)
+- **Windows**: `start` (typically Notepad)
+- **Linux**: `xdg-open` (user's configured default)
 
-**Note**: This command is interactive-only. It opens an editor process attached to stdin/stdout. Not suitable for non-interactive agent use.
+The CLI returns immediately after launching the application.
+
+---
+
+## `open <slug>`
+
+Open a project's directory in the OS file manager.
+
+### Arguments
+
+| Arg | Required | Type |
+|-----|----------|------|
+| `slug` | yes | string |
+
+### Flags
+
+None.
+
+### Side Effects
+
+Opens the project directory with the OS file manager:
+- **macOS**: Finder (via `open`)
+- **Windows**: Explorer (via `start`)
+- **Linux**: Default file manager (via `xdg-open`)
+
+The CLI returns immediately after launching the file manager.
 
 ---
 
@@ -343,8 +373,10 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
 | `editor` | string | `$EDITOR` or `"vim"` | Editor binary name |
-| `github_org` | string | `""` | GitHub org for `push` repo creation |
+| `github_username` | string | `""` | GitHub username for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
+
+Both `github_username` and `auto_git_init` are prompted interactively during first-run setup.
 
 ### Per-Project Directory Structure
 
@@ -378,6 +410,5 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 
 | Variable | Effect |
 |----------|--------|
-| `EDITOR` | Default editor for `edit` command (overridden by config `editor`) |
 | `NO_EMOJI` | Set to any value to disable emoji in TUI output |
 | `TERM=dumb` | Disables emoji in TUI output |

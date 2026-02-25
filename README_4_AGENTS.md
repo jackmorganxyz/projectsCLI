@@ -1,4 +1,4 @@
-# projectsCLI — Agent Reference
+# projects — Agent Reference
 
 Machine-readable reference for AI agents, scripts, and automation.
 
@@ -6,7 +6,7 @@ Machine-readable reference for AI agents, scripts, and automation.
 
 | Property | Value |
 |----------|-------|
-| Binary | `projectsCLI` |
+| Binary | `projects` |
 | Config file | `~/.projects/config.toml` (TOML) |
 | Data directory | `~/.projects/projects/` |
 | Project file | `<project-dir>/PROJECT.md` (YAML frontmatter + Markdown body) |
@@ -16,7 +16,7 @@ Machine-readable reference for AI agents, scripts, and automation.
 
 ```sh
 # Homebrew
-brew install jackmorganxyz/tap/projectsCLI
+brew install jackmorganxyz/tap/projects
 
 # Shell script
 curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/install.sh | sh
@@ -34,7 +34,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 
 ## Commands
 
-### `create <slug>`
+### `create [slug]`
 
 Create a new project scaffold.
 
@@ -42,13 +42,15 @@ Create a new project scaffold.
 
 | Arg | Required | Type | Validation |
 |-----|----------|------|------------|
-| `slug` | yes | string | Regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`, max 64 chars |
+| `slug` | no | string | Regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`, max 64 chars |
+
+If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool Project"` produces slug `my-cool-project`). Either a slug argument or `--title` must be provided.
 
 **Flags:**
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--title` | string | slug value | Project title |
+| `--title` | string | slug value | Project title (required if slug is omitted) |
 | `--description` | string | `""` | Project description |
 | `--tags` | []string | `[]` | Comma-separated tags |
 | `--status` | string | `"active"` | Initial status (`active`, `paused`, `archived`) |
@@ -59,7 +61,7 @@ Create a new project scaffold.
 {
   "status": "created",
   "slug": "my-project",
-  "dir": "/Users/you/.openclaw/projects/my-project",
+  "dir": "/Users/you/.projects/projects/my-project",
   "created_at": "2025-02-25T00:00:00Z"
 }
 ```
@@ -97,7 +99,7 @@ List all projects. Alias: `ls`.
       "git_remote": "https://github.com/user/my-project"
     },
     "body": "# My Project\n\nMarkdown content...\n",
-    "dir": "/Users/you/.openclaw/projects/my-project"
+    "dir": "/Users/you/.projects/projects/my-project"
   }
 ]
 ```
@@ -162,7 +164,7 @@ Output project data for agent consumption.
     "git_remote": "https://github.com/user/my-project"
   },
   "body": "# My Project\n...",
-  "dir": "/Users/you/.openclaw/projects/my-project"
+  "dir": "/Users/you/.projects/projects/my-project"
 }
 ```
 
@@ -171,7 +173,7 @@ Output project data for agent consumption.
 export PROJECT_SLUG="my-project"
 export PROJECT_TITLE="My Project"
 export PROJECT_STATUS="active"
-export PROJECT_DIR="/Users/you/.openclaw/projects/my-project"
+export PROJECT_DIR="/Users/you/.projects/projects/my-project"
 export PROJECT_DESCRIPTION="Description"
 export PROJECT_TAGS="go"
 export PROJECT_GIT_REMOTE="https://github.com/user/my-project"
@@ -182,7 +184,7 @@ export PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 PROJECT_SLUG="my-project"
 PROJECT_TITLE="My Project"
 PROJECT_STATUS="active"
-PROJECT_DIR="/Users/you/.openclaw/projects/my-project"
+PROJECT_DIR="/Users/you/.projects/projects/my-project"
 PROJECT_DESCRIPTION="Description"
 PROJECT_TAGS="go"
 PROJECT_GIT_REMOTE="https://github.com/user/my-project"
@@ -192,7 +194,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 
 ### `edit <slug>`
 
-Open project's `PROJECT.md` in configured editor.
+Open project's `PROJECT.md` in the OS default application.
 
 **Arguments:**
 
@@ -202,9 +204,27 @@ Open project's `PROJECT.md` in configured editor.
 
 **Flags:** None.
 
-**Side effects:** Launches `$EDITOR` (or config `editor` value) with the project's `PROJECT.md`.
+**Side effects:** Opens `PROJECT.md` with the OS default application (TextEdit on macOS, Notepad on Windows, xdg-open on Linux). The CLI returns immediately.
 
-**Note:** This command is interactive-only. It opens an editor process attached to stdin/stdout.
+**Note:** This command is interactive-only. Not suitable for non-interactive agent use — use direct file reads/writes instead.
+
+---
+
+### `open <slug>`
+
+Open the project directory in the OS file manager.
+
+**Arguments:**
+
+| Arg | Required | Type |
+|-----|----------|------|
+| `slug` | yes | string |
+
+**Flags:** None.
+
+**Side effects:** Opens the project directory in Finder (macOS), Explorer (Windows), or xdg-open (Linux). The CLI returns immediately.
+
+**Note:** This command is interactive-only. For agents, use `projects view <slug> --json | jq -r '.dir'` to get the directory path.
 
 ---
 
@@ -352,8 +372,8 @@ Markdown body content here.
 
 ```toml
 projects_dir = "~/.projects/projects"   # Path to projects directory
-editor = "vim"                          # Editor for `edit` command (default: $EDITOR or "vim")
-github_org = "my-org"                   # GitHub org for repo creation (optional)
+editor = "vim"                          # Editor binary name
+github_username = "my-username"         # GitHub username for repo creation
 auto_git_init = true                    # Auto-init git on `create` (default: true)
 ```
 
@@ -361,8 +381,10 @@ auto_git_init = true                    # Auto-init git on `create` (default: tr
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
 | `editor` | string | `$EDITOR` or `"vim"` | Editor binary name |
-| `github_org` | string | `""` | GitHub org for `push` repo creation |
+| `github_username` | string | `""` | GitHub username for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
+
+Both `github_username` and `auto_git_init` are prompted interactively during first-run setup.
 
 ### Directory Structure per Project
 
@@ -389,42 +411,42 @@ auto_git_init = true                    # Auto-init git on `create` (default: tr
 
 ### Load project into shell environment
 ```sh
-eval $(projectsCLI load my-project --export)
+eval $(projects load my-project --export)
 echo $PROJECT_SLUG    # my-project
-echo $PROJECT_DIR     # /Users/you/.openclaw/projects/my-project
+echo $PROJECT_DIR     # /Users/you/.projects/projects/my-project
 echo $PROJECT_STATUS  # active
 ```
 
 ### List all projects as JSON
 ```sh
-projectsCLI ls --json
+projects ls --json
 # Auto-detects piped output, so this also works:
-projectsCLI ls | jq '.'
+projects ls | jq '.'
 ```
 
 ### Get a single project
 ```sh
-projectsCLI view my-project --json | jq '.meta'
+projects view my-project --json | jq '.meta'
 ```
 
 ### Find projects with uncommitted changes
 ```sh
-projectsCLI status --json | jq '.[] | select(.uncommitted == true) | .slug'
+projects status --json | jq '.[] | select(.uncommitted == true) | .slug'
 ```
 
 ### Find projects without a remote
 ```sh
-projectsCLI status --json | jq '.[] | select(.has_remote == false and .has_git == true) | .slug'
+projects status --json | jq '.[] | select(.has_remote == false and .has_git == true) | .slug'
 ```
 
 ### Non-interactive delete
 ```sh
-projectsCLI delete my-project --force --json
+projects delete my-project --force --json
 ```
 
 ### Create a project programmatically
 ```sh
-projectsCLI create my-api --title "My API" --tags "go,api" --json
+projects create --title "My API" --tags "go,api" --json
 ```
 
 ### Read project files directly
@@ -449,6 +471,5 @@ cat ~/.projects/projects/my-project/memory/MEMORY.md
 
 | Variable | Effect |
 |----------|--------|
-| `EDITOR` | Default editor for `edit` command (overridden by config `editor`) |
 | `NO_EMOJI` | Set to any value to disable emoji in TUI output |
 | `TERM=dumb` | Disables emoji in TUI output |

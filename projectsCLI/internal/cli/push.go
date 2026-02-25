@@ -71,7 +71,7 @@ func NewPushCmd() *cobra.Command {
 					return fmt.Errorf("no remote configured and gh CLI not available; add a remote manually or install gh")
 				}
 
-				org := runtime.Config.GitHubOrg
+				org := runtime.Config.GitHubUsername
 				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Creating GitHub repo... your code deserves a home."))
 				repoURL, err := git.CreateRepo(dir, slug, org, private)
 				if err != nil {
