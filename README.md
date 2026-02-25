@@ -14,8 +14,6 @@
 
 A terminal-native project manager with a gorgeous TUI, JSON output for automation, and just enough personality to make you smile. Scaffold projects, track metadata, push to GitHub — all from one tool.
 
-You know that feeling when you open a folder and it's just... vibes? That's what we're going for.
-
 ## 🚀 Quick Start
 
 ```sh
@@ -24,7 +22,7 @@ projectsCLI create my-project --title "My Project"
 projectsCLI ls
 ```
 
-Three commands. You now have a scaffolded project with docs, memory files, task tracking, and a git repo. Go celebrate.
+Three commands. You now have a scaffolded project with docs, memory files, task tracking, and a git repo.
 
 ## 📖 Documentation
 

@@ -2,7 +2,7 @@
 
 > Less chaos, more shipping.
 
-A terminal-native project manager with a gorgeous TUI, git superpowers, and just the right amount of personality. Built with [Charmbracelet](https://charm.sh) libraries because your terminal deserves nice things.
+A terminal-native project manager with a nice TUI, git superpowers, and just the right amount of personality. Built with [Charmbracelet](https://charm.sh) libraries because your terminal deserves nice things.
 
 ---
 
@@ -32,7 +32,7 @@ One command to scaffold. One command to push. A dashboard to see everything at a
 
 ## 📦 Installation
 
-### Homebrew (recommended, civilized)
+### Homebrew (recommended)
 
 ```sh
 brew install jackmorganxyz/tap/projectsCLI
