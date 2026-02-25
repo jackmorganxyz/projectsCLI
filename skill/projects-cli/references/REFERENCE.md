@@ -1,26 +1,6 @@
-# projectsCLI — Agent Reference
+# projectsCLI — Full Command Reference
 
-Machine-readable reference for AI agents, scripts, and automation.
-
-## Overview
-
-| Property | Value |
-|----------|-------|
-| Binary | `projectsCLI` |
-| Config file | `~/.projects/config.toml` (TOML) |
-| Data directory | `~/.projects/projects/` |
-| Project file | `<project-dir>/PROJECT.md` (YAML frontmatter + Markdown body) |
-| Output | JSON when `--json` flag is set or stdout is not a TTY |
-
-## Installation
-
-```sh
-# Homebrew
-brew install jackpmorgan/tap/projectsCLI
-
-# Shell script
-curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
-```
+Complete specification of every command, flag, argument, and JSON output schema.
 
 ## Global Flags
 
@@ -32,19 +12,17 @@ curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/instal
 
 ---
 
-## Commands
-
-### `create <slug>`
+## `create <slug>`
 
 Create a new project scaffold.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type | Validation |
 |-----|----------|------|------------|
 | `slug` | yes | string | Regex `^[a-z0-9]+(?:-[a-z0-9]+)*$`, max 64 chars |
 
-**Flags:**
+### Flags
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
@@ -53,35 +31,40 @@ Create a new project scaffold.
 | `--tags` | []string | `[]` | Comma-separated tags |
 | `--status` | string | `"active"` | Initial status (`active`, `paused`, `archived`) |
 
-**JSON output:**
+### JSON Output
 
 ```json
 {
   "status": "created",
   "slug": "my-project",
-  "dir": "/Users/you/.openclaw/projects/my-project",
+  "dir": "/Users/you/.projects/projects/my-project",
   "created_at": "2025-02-25T00:00:00Z"
 }
 ```
 
-**Side effects:**
+### Side Effects
+
 - Creates directory tree: `docs/`, `memory/`, `context/`, `tasks/`, `code/`, `private/`
 - Writes `PROJECT.md` with YAML frontmatter
 - Writes template files: `USAGE.md`, `memory/MEMORY.md`, `context/CONTEXT.md`, `tasks/TODO.md`, `docs/README.md`, `.gitignore`
-- If `auto_git_init = true`: runs `git init`, `git add -A`, `git commit`
-- Regenerates `PROJECTS.md` registry
+- If `auto_git_init = true` in config: runs `git init`, `git add -A`, `git commit`
+- Regenerates `PROJECTS.md` registry in the projects directory
 
 ---
 
-### `list`
+## `list` (alias: `ls`)
 
-List all projects. Alias: `ls`.
+List all projects.
 
-**Arguments:** None.
+### Arguments
 
-**Flags:** None (uses global `--json`).
+None.
 
-**JSON output:**
+### Flags
+
+None (uses global `--json`).
+
+### JSON Output
 
 ```json
 [
@@ -97,58 +80,64 @@ List all projects. Alias: `ls`.
       "git_remote": "https://github.com/user/my-project"
     },
     "body": "# My Project\n\nMarkdown content...\n",
-    "dir": "/Users/you/.openclaw/projects/my-project"
+    "dir": "/Users/you/.projects/projects/my-project"
   }
 ]
 ```
 
-**Behavior:**
+### Behavior
+
 - Interactive TTY: launches TUI dashboard
 - Non-TTY or `--json`: outputs JSON array
 
 ---
 
-### `view <slug>`
+## `view <slug>`
 
 Display project details.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type |
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:** None (uses global `--json`).
+### Flags
 
-**JSON output:** Same as a single element from `list` output (Project object with `meta`, `body`, `dir`).
+None (uses global `--json`).
 
-**Behavior:**
+### JSON Output
+
+Same shape as a single element from `list` output — object with `meta`, `body`, `dir`.
+
+### Behavior
+
 - Interactive TTY: scrollable TUI detail view
 - Non-TTY: plain text fields
 - `--json`: full project JSON
 
 ---
 
-### `load <slug>`
+## `load <slug>`
 
-Output project data for agent consumption.
+Output project data for agent/script consumption.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type |
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:**
+### Flags
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--export` | bool | `false` | Output as shell `export` statements |
 | `--bash` | bool | `false` | Output as eval-able bash variables |
 
-**Output formats:**
+### Output Formats
 
-`--json` (default):
+**JSON (default)**:
 ```json
 {
   "meta": {
@@ -162,27 +151,27 @@ Output project data for agent consumption.
     "git_remote": "https://github.com/user/my-project"
   },
   "body": "# My Project\n...",
-  "dir": "/Users/you/.openclaw/projects/my-project"
+  "dir": "/Users/you/.projects/projects/my-project"
 }
 ```
 
-`--export`:
+**`--export`**:
 ```sh
 export PROJECT_SLUG="my-project"
 export PROJECT_TITLE="My Project"
 export PROJECT_STATUS="active"
-export PROJECT_DIR="/Users/you/.openclaw/projects/my-project"
+export PROJECT_DIR="/Users/you/.projects/projects/my-project"
 export PROJECT_DESCRIPTION="Description"
 export PROJECT_TAGS="go"
 export PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 ```
 
-`--bash`:
+**`--bash`**:
 ```sh
 PROJECT_SLUG="my-project"
 PROJECT_TITLE="My Project"
 PROJECT_STATUS="active"
-PROJECT_DIR="/Users/you/.openclaw/projects/my-project"
+PROJECT_DIR="/Users/you/.projects/projects/my-project"
 PROJECT_DESCRIPTION="Description"
 PROJECT_TAGS="go"
 PROJECT_GIT_REMOTE="https://github.com/user/my-project"
@@ -190,41 +179,45 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 
 ---
 
-### `edit <slug>`
+## `edit <slug>`
 
 Open project's `PROJECT.md` in configured editor.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type |
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:** None.
+### Flags
 
-**Side effects:** Launches `$EDITOR` (or config `editor` value) with the project's `PROJECT.md`.
+None.
 
-**Note:** This command is interactive-only. It opens an editor process attached to stdin/stdout.
+### Side Effects
+
+Launches editor (config `editor` > `$EDITOR` > `vim`) with the project's `PROJECT.md`.
+
+**Note**: This command is interactive-only. It opens an editor process attached to stdin/stdout. Not suitable for non-interactive agent use.
 
 ---
 
-### `delete <slug>`
+## `delete <slug>` (alias: `rm`)
 
-Delete a project and its directory. Alias: `rm`.
+Delete a project and its entire directory.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type |
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:**
+### Flags
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
 | `--force` | bool | `false` | Skip confirmation prompt |
 
-**JSON output:**
+### JSON Output
 
 ```json
 {
@@ -233,23 +226,30 @@ Delete a project and its directory. Alias: `rm`.
 }
 ```
 
-**Important:** In non-interactive mode (piped/scripted), `--force` is **required**. Without it, the command returns an error.
+### Important
 
-**Side effects:**
+In non-interactive mode (piped/scripted), `--force` is **required**. Without it, the command returns an error.
+
+### Side Effects
+
 - Removes the entire project directory (`rm -rf`)
 - Regenerates `PROJECTS.md` registry
 
 ---
 
-### `status`
+## `status`
 
 Health check across all projects.
 
-**Arguments:** None.
+### Arguments
 
-**Flags:** None (uses global `--json`).
+None.
 
-**JSON output:**
+### Flags
+
+None (uses global `--json`).
+
+### JSON Output
 
 ```json
 [
@@ -265,25 +265,31 @@ Health check across all projects.
 ]
 ```
 
-**Fields:**
-- `has_git`: whether the project directory is a git repository
-- `has_remote`: whether a git remote is configured
-- `uncommitted`: whether there are uncommitted changes
-- `has_project_md`: whether `PROJECT.md` exists
+### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `slug` | string | Project identifier |
+| `title` | string | Display name |
+| `status` | string | `active`, `paused`, or `archived` |
+| `has_git` | bool | Whether project directory is a git repository |
+| `has_remote` | bool | Whether a git remote is configured |
+| `uncommitted` | bool | Whether there are uncommitted changes |
+| `has_project_md` | bool | Whether `PROJECT.md` exists |
 
 ---
 
-### `push <slug>`
+## `push <slug>`
 
 Full git workflow: init, stage, commit, create GitHub repo, push.
 
-**Arguments:**
+### Arguments
 
 | Arg | Required | Type |
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:**
+### Flags
 
 | Flag | Short | Type | Default | Description |
 |------|-------|------|---------|-------------|
@@ -291,7 +297,7 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 | `--private` | | bool | `true` | Create private GitHub repo |
 | `--no-github` | | bool | `false` | Skip GitHub repo creation |
 
-**JSON output:**
+### JSON Output
 
 ```json
 {
@@ -301,39 +307,22 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 }
 ```
 
-**Workflow:**
+### Workflow
+
 1. If not a git repo: runs `git init`
 2. Runs `git add -A`
 3. If uncommitted changes: commits with provided message
 4. If no remote and `--no-github` is false: creates GitHub repo via `gh` CLI
 5. If remote exists: pushes to remote with `--set-upstream`
 
-**Requirements:** `gh` CLI must be installed and authenticated for GitHub repo creation.
+### Requirements
+
+- `gh` CLI must be installed and authenticated for GitHub repo creation
+- Without `gh`, requires existing remote or `--no-github` flag
 
 ---
 
 ## Data Schemas
-
-### PROJECT.md Format
-
-```yaml
----
-title: "My Project"
-slug: "my-project"
-status: "active"
-tags:
-  - go
-  - cli
-description: "A brief description"
-created_at: "2025-02-25T00:00:00Z"
-updated_at: "2025-02-25T00:00:00Z"
-git_remote: "https://github.com/user/my-project"
----
-
-# My Project
-
-Markdown body content here.
-```
 
 ### ProjectMeta Fields
 
@@ -350,13 +339,6 @@ Markdown body content here.
 
 ### Config Schema (`~/.projects/config.toml`)
 
-```toml
-projects_dir = "~/.projects/projects"   # Path to projects directory
-editor = "vim"                          # Editor for `edit` command (default: $EDITOR or "vim")
-github_org = "my-org"                   # GitHub org for repo creation (optional)
-auto_git_init = true                    # Auto-init git on `create` (default: true)
-```
-
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
@@ -364,12 +346,12 @@ auto_git_init = true                    # Auto-init git on `create` (default: tr
 | `github_org` | string | `""` | GitHub org for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
 
-### Directory Structure per Project
+### Per-Project Directory Structure
 
 ```
 <slug>/
   PROJECT.md            # YAML frontmatter + markdown body (source of truth)
-  USAGE.md              # Workspace guide — directory roles, conventions, agent instructions
+  USAGE.md              # Workspace guide — directory roles, conventions
   docs/README.md        # Project documentation
   memory/MEMORY.md      # Persistent notes and context
   context/CONTEXT.md    # Architecture decisions
@@ -382,59 +364,6 @@ auto_git_init = true                    # Auto-init git on `create` (default: tr
 ### Registry File
 
 `~/.projects/projects/PROJECTS.md` — Auto-generated markdown table of all projects. Regenerated on `create` and `delete`.
-
----
-
-## Agent Integration Patterns
-
-### Load project into shell environment
-```sh
-eval $(projectsCLI load my-project --export)
-echo $PROJECT_SLUG    # my-project
-echo $PROJECT_DIR     # /Users/you/.openclaw/projects/my-project
-echo $PROJECT_STATUS  # active
-```
-
-### List all projects as JSON
-```sh
-projectsCLI ls --json
-# Auto-detects piped output, so this also works:
-projectsCLI ls | jq '.'
-```
-
-### Get a single project
-```sh
-projectsCLI view my-project --json | jq '.meta'
-```
-
-### Find projects with uncommitted changes
-```sh
-projectsCLI status --json | jq '.[] | select(.uncommitted == true) | .slug'
-```
-
-### Find projects without a remote
-```sh
-projectsCLI status --json | jq '.[] | select(.has_remote == false and .has_git == true) | .slug'
-```
-
-### Non-interactive delete
-```sh
-projectsCLI delete my-project --force --json
-```
-
-### Create a project programmatically
-```sh
-projectsCLI create my-api --title "My API" --tags "go,api" --json
-```
-
-### Read project files directly
-```sh
-# The PROJECT.md is the source of truth
-cat ~/.projects/projects/my-project/PROJECT.md
-
-# Memory file for persistent context
-cat ~/.projects/projects/my-project/memory/MEMORY.md
-```
 
 ---
 

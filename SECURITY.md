@@ -19,7 +19,7 @@ Instead, please email the maintainer directly or use [GitHub's private vulnerabi
 
 projectsCLI interacts with your system in the following ways:
 
-- **Filesystem**: Reads and writes files under `~/.openclaw/` (configurable)
+- **Filesystem**: Reads and writes files under `~/.projects/` (configurable)
 - **Git**: Executes `git` commands on project directories
 - **GitHub**: Uses the `gh` CLI to create repositories (only when you run `push`)
 - **No telemetry**: projectsCLI does not phone home or collect any data

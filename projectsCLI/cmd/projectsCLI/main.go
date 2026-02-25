@@ -22,7 +22,7 @@ func main() {
 func newRootCmd() *cobra.Command {
 	defaultConfigPath, err := config.ConfigPath()
 	if err != nil {
-		defaultConfigPath = "~/.openclaw/config.toml"
+		defaultConfigPath = "~/.projects/config.toml"
 	}
 
 	var jsonOutput bool
@@ -31,7 +31,7 @@ func newRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:          "projectsCLI",
 		Short:        "Manage project scaffolds ✨",
-		Long:         "projectsCLI manages project scaffolds under ~/.openclaw/projects/.\nAgents use it via projectsCLI <command> --json; humans get a polished TUI.",
+		Long:         "projectsCLI manages project scaffolds under ~/.projects/projects/.\nAgents use it via projectsCLI <command> --json; humans get a polished TUI.",
 		Version:      version,
 		SilenceUsage: true,
 		Run: func(cmd *cobra.Command, _ []string) {
@@ -41,6 +41,13 @@ func newRootCmd() *cobra.Command {
 			_ = cmd.Help()
 		},
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			// First-run setup: detect openclaw, let user choose project location.
+			if config.NeedsSetup() && tui.IsInteractive() && !tui.IsJSON() {
+				if _, err := config.RunSetup(); err != nil {
+					return fmt.Errorf("setup: %w", err)
+				}
+			}
+
 			if err := config.EnsureDirs(); err != nil {
 				return fmt.Errorf("create directories: %w", err)
 			}

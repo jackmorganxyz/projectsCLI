@@ -5,27 +5,49 @@ import (
 	"path/filepath"
 )
 
-// OpenClawDir returns the root directory (~/.openclaw).
-func OpenClawDir() (string, error) {
+// AppDir returns the root config directory (~/.projects).
+func AppDir() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, ".openclaw"), nil
+	return filepath.Join(home, ".projects"), nil
 }
 
-// ProjectsDir returns the projects directory (~/.openclaw/projects).
+// ProjectsDir returns the default projects directory (~/.projects/projects).
 func ProjectsDir() (string, error) {
-	root, err := OpenClawDir()
+	root, err := AppDir()
 	if err != nil {
 		return "", err
 	}
 	return filepath.Join(root, "projects"), nil
 }
 
-// ConfigPath returns the path to config.toml (~/.openclaw/config.toml).
+// OpenClawDir returns the openclaw directory (~/.openclaw) if it exists.
+// Returns the path and true if found, empty string and false otherwise.
+func OpenClawDir() (string, bool) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", false
+	}
+	dir := filepath.Join(home, ".openclaw")
+	if info, err := os.Stat(dir); err == nil && info.IsDir() {
+		return dir, true
+	}
+	return "", false
+}
+
+// OpenClawProjectsDir returns the openclaw projects directory path.
+func OpenClawProjectsDir() string {
+	if dir, ok := OpenClawDir(); ok {
+		return filepath.Join(dir, "projects")
+	}
+	return ""
+}
+
+// ConfigPath returns the path to config.toml (~/.projects/config.toml).
 func ConfigPath() (string, error) {
-	root, err := OpenClawDir()
+	root, err := AppDir()
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +56,7 @@ func ConfigPath() (string, error) {
 
 // EnsureDirs creates all required directories if they don't exist.
 func EnsureDirs() error {
-	for _, fn := range []func() (string, error){OpenClawDir, ProjectsDir} {
+	for _, fn := range []func() (string, error){AppDir, ProjectsDir} {
 		dir, err := fn()
 		if err != nil {
 			return err

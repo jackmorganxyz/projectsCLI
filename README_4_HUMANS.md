@@ -1,4 +1,4 @@
-# projectsCLI — README for Humans
+# projectsCLI — README for Humans 🧑‍💻
 
 > Less chaos, more shipping.
 
@@ -8,21 +8,21 @@ A terminal-native project manager with a gorgeous TUI, git superpowers, and just
 
 ## Table of Contents
 
-- [The Pitch](#the-pitch)
-- [Installation](#installation)
-- [Getting Started](#getting-started)
-- [What You Get](#what-you-get)
-- [Command Reference](#command-reference)
-- [Configuration](#configuration)
-- [The Personality](#the-personality)
-- [Environment Variables](#environment-variables)
-- [Tips & Tricks](#tips--tricks)
+- [The Pitch](#-the-pitch)
+- [Installation](#-installation)
+- [Getting Started](#-getting-started)
+- [What You Get](#-what-you-get)
+- [Command Reference](#-command-reference)
+- [Configuration](#-configuration)
+- [The Personality](#-the-personality)
+- [Environment Variables](#-environment-variables)
+- [Tips & Tricks](#-tips--tricks)
 
 ---
 
-## The Pitch
+## 🎯 The Pitch
 
-You have projects everywhere. Some in `~/code`, some in `~/Desktop/random-idea`, some you forgot about entirely. Half of them don't have a README. None of them have a consistent structure.
+You have projects everywhere. Some in `~/code`, some in `~/Desktop/random-idea`, some you forgot about entirely. Half of them don't have a README. None of them have a consistent structure. It's fine. We've all been there. (It's not fine.)
 
 **projectsCLI gives every project a home.**
 
@@ -30,23 +30,23 @@ One command to scaffold. One command to push. A dashboard to see everything at a
 
 ---
 
-## Installation
+## 📦 Installation
 
-### Homebrew (recommended)
+### Homebrew (recommended, civilized)
 
 ```sh
 brew install jackpmorgan/tap/projectsCLI
 ```
 
-### Quick install script
+### Quick install script (for the impatient)
 
 ```sh
 curl -sSL https://raw.githubusercontent.com/jackpmorgan/projects-cli/main/install.sh | sh
 ```
 
-Auto-detects your OS and architecture. Installs to `/usr/local/bin`.
+Auto-detects your OS and architecture. Installs to `/usr/local/bin`. It's smarter than it looks.
 
-### Build from source
+### Build from source (respect)
 
 ```sh
 git clone https://github.com/jackpmorgan/projects-cli.git
@@ -57,9 +57,9 @@ make install  # copies to /usr/local/bin
 
 ---
 
-## Getting Started
+## 🏁 Getting Started
 
-Let's walk through the full lifecycle. From zero to pushed-to-GitHub in about 60 seconds.
+Let's walk through the full lifecycle. From zero to pushed-to-GitHub in about 60 seconds. Grab a coffee — actually, you won't need it. This is fast.
 
 ### 1. Create a project
 
@@ -71,17 +71,18 @@ You'll see something like:
 
 ```
  Created project "my-api" — Fresh project, who dis?
-  Directory  ~/.openclaw/projects/my-api
+  Directory  ~/.projects/projects/my-api
   Created    2025-02-25
 
 Tip: 'projectsCLI push <slug>' handles git init, commit, and GitHub in one step.
 ```
 
-Behind the scenes, this created a whole scaffold:
+Behind the scenes, this created a whole scaffold for you (you're welcome):
 
 ```
-~/.openclaw/projects/my-api/
+~/.projects/projects/my-api/
   PROJECT.md            # Your project's identity card (YAML frontmatter + markdown)
+  USAGE.md              # How this workspace works — read-me-first for agents and humans
   docs/README.md        # Documentation starts here
   memory/MEMORY.md      # Persistent notes (great for AI agent context)
   context/CONTEXT.md    # Architecture decisions and context
@@ -99,7 +100,7 @@ Git was automatically initialized and the scaffold was committed.
 projectsCLI ls
 ```
 
-This launches an interactive dashboard in your terminal. Navigate with `j`/`k` (or arrow keys), press `Enter` to select, `q` to quit. You'll see a table with your project slugs, titles, statuses, and creation dates — all styled in a violet-and-emerald color palette.
+This launches an interactive dashboard in your terminal. Navigate with `j`/`k` (or arrow keys), press `Enter` to select, `q` to quit. You'll see a table with your project slugs, titles, statuses, and creation dates — all styled in a violet-and-emerald color palette that frankly goes unreasonably hard for a CLI tool.
 
 No projects yet? You'll get a gentle nudge:
 
@@ -129,7 +130,7 @@ Opens `PROJECT.md` in your configured editor (defaults to `$EDITOR`, falls back 
 projectsCLI push my-api -m "Initial commit"
 ```
 
-This is the magic one. It handles the entire git workflow:
+This is the magic one. ✨ It handles the entire git workflow:
 
 1. Ensures git is initialized
 2. Stages all changes
@@ -150,7 +151,7 @@ You'll see:
 projectsCLI status
 ```
 
-Get a health check table across all your projects:
+Your morning standup, minus the standing. Get a health check table across all your projects:
 
 ```
  Project Health
@@ -161,17 +162,18 @@ side-proj  paused   yes   no       dirty
 old-thing  archived no    -        -
 ```
 
-Green means good, amber means needs attention. At a glance, you know what needs a push.
+Green means good, amber means needs attention. At a glance, you know what needs a push. No more "wait, did I commit that?" anxiety.
 
 ---
 
-## What You Get
+## 🗂️ What You Get
 
-Every project created by projectsCLI follows the same structure:
+Every project created by projectsCLI follows the same structure. Consistency is a love language.
 
 | File/Directory | Purpose |
 |---|---|
 | `PROJECT.md` | Source of truth. YAML frontmatter (metadata) + markdown body (notes, plans, anything) |
+| `USAGE.md` | The "how this workspace works" guide — conventions, directory roles, agent instructions |
 | `docs/` | Project documentation |
 | `memory/MEMORY.md` | Persistent notes — great for AI agents that need project context |
 | `context/CONTEXT.md` | Architecture decisions, design rationale |
@@ -202,11 +204,11 @@ Your markdown content here. Plans, notes, links, whatever you want.
 
 ---
 
-## Command Reference
+## 🔧 Command Reference
 
 ### `create <slug>`
 
-Scaffold a new project.
+Scaffold a new project. Another masterpiece begins.
 
 ```sh
 projectsCLI create my-project
@@ -218,7 +220,7 @@ projectsCLI create my-project --status paused  # start it paused if you're not r
 
 ### `list` (alias: `ls`)
 
-See all your projects.
+See all your projects. Feel the satisfaction.
 
 ```sh
 projectsCLI ls           # interactive TUI dashboard
@@ -264,11 +266,11 @@ echo "Working on $PROJECT_TITLE in $PROJECT_DIR"
 
 ### `delete <slug>` (alias: `rm`)
 
-Delete a project and its entire directory.
+Delete a project and its entire directory. We'll make sure you really mean it.
 
 ```sh
 projectsCLI delete my-project          # asks for confirmation with a fun prompt
-projectsCLI rm my-project --force      # skip confirmation
+projectsCLI rm my-project --force      # skip confirmation (brave)
 ```
 
 The confirmation prompt is delightfully dramatic:
@@ -292,7 +294,7 @@ Shows git init status, remote configuration, and whether there are uncommitted c
 
 ### `push <slug>`
 
-The full git workflow in one command.
+The full git workflow in one command. Chef's kiss. 🤌
 
 ```sh
 projectsCLI push my-project -m "Add user auth"
@@ -306,13 +308,13 @@ Requires `gh` CLI for GitHub repo creation. If you already have a remote, it jus
 
 ---
 
-## Configuration
+## ⚙️ Configuration
 
-Config lives at `~/.openclaw/config.toml`:
+Config lives at `~/.projects/config.toml`:
 
 ```toml
 # Where your projects live
-projects_dir = "~/.openclaw/projects"
+projects_dir = "~/.projects/projects"
 
 # Which editor 'edit' opens (defaults to $EDITOR, then vim)
 editor = "nvim"
@@ -324,13 +326,13 @@ github_org = "my-org"
 auto_git_init = true
 ```
 
-The config file is created automatically the first time you run any command. All fields are optional — sensible defaults are built in.
+The config file is created automatically the first time you run any command. All fields are optional — sensible defaults are built in. We're not here to make you configure things.
 
 ---
 
-## The Personality
+## 🎭 The Personality
 
-projectsCLI believes developer tools should spark joy. You'll encounter random messages throughout:
+projectsCLI believes developer tools should spark joy, not existential dread. You'll encounter random messages throughout:
 
 **When you create a project:**
 - *"Fresh project, who dis?"*
@@ -356,13 +358,13 @@ projectsCLI believes developer tools should spark joy. You'll encounter random m
 - *"Reticulating splines..."*
 - *"Warming up the flux capacitor..."*
 
-Random tips appear ~30% of the time after commands. They're genuinely useful, not just noise.
+Random tips appear ~30% of the time after commands. They're genuinely useful, not just noise. We respect your terminal real estate.
 
-Don't want emoji? Set `NO_EMOJI=1` or `TERM=dumb`.
+Don't want emoji? Set `NO_EMOJI=1` or `TERM=dumb`. We won't judge. (We'll judge a little.)
 
 ---
 
-## Environment Variables
+## 🌍 Environment Variables
 
 | Variable | What it does |
 |----------|-------------|
@@ -372,9 +374,9 @@ Don't want emoji? Set `NO_EMOJI=1` or `TERM=dumb`.
 
 ---
 
-## Tips & Tricks
+## 💡 Tips & Tricks
 
-**Pipe anything to jq.** When projectsCLI detects it's not writing to a terminal, it auto-switches to JSON:
+**Pipe anything to jq.** When projectsCLI detects it's not writing to a terminal, it auto-switches to JSON. It's psychic like that:
 
 ```sh
 projectsCLI ls | jq '.[].meta.slug'
@@ -387,12 +389,12 @@ eval $(projectsCLI load my-project --export)
 cd "$PROJECT_DIR/code"
 ```
 
-**The `--json` flag works on every command.** Even `create` and `delete` return structured output you can parse.
+**The `--json` flag works on every command.** Even `create` and `delete` return structured output you can parse. Everything is an API if you believe hard enough.
 
-**Status is your morning check-in.** Run `projectsCLI status` to see which projects need attention — dirty repos, missing remotes, all at a glance.
+**Status is your morning check-in.** Run `projectsCLI status` to see which projects need attention — dirty repos, missing remotes, all at a glance. Better than standup.
 
-**The `private/` directory is your safe space.** It's gitignored by default. Throw API keys, draft notes, scratch files in there. They'll never accidentally get committed.
+**The `private/` directory is your safe space.** It's gitignored by default. Throw API keys, draft notes, scratch files in there. They'll never accidentally get committed. Your secrets are safe with us.
 
 ---
 
-Built with [Cobra](https://github.com/spf13/cobra), [Bubble Tea](https://github.com/charmbracelet/bubbletea), [Lip Gloss](https://github.com/charmbracelet/lipgloss), and too much caffeine.
+Built with [Cobra](https://github.com/spf13/cobra), [Bubble Tea](https://github.com/charmbracelet/bubbletea), [Lip Gloss](https://github.com/charmbracelet/lipgloss), and mass quantities of caffeine. ☕

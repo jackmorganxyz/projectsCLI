@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - `push` command — full git workflow with GitHub repo creation
 - Interactive TUI with Charmbracelet (Bubble Tea, Lip Gloss)
 - Auto JSON output mode (detected via TTY)
-- TOML configuration (`~/.openclaw/config.toml`)
+- TOML configuration (`~/.projects/config.toml`)
 - Project scaffolding with docs, memory, context, tasks directories
 - Auto-generated PROJECTS.md registry
 - Random quips, celebrations, tips, and personality
