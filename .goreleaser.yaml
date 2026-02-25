@@ -2,7 +2,8 @@ version: 2
 
 before:
   hooks:
-    - go mod tidy
+    - cmd: go mod tidy
+      dir: projectsCLI
 
 builds:
   - id: projectsCLI
@@ -62,5 +63,5 @@ brews:
 release:
   github:
     owner: jackmorganxyz
-    name: projects-cli
+    name: projectsCLI
   name_template: "v{{.Version}}"

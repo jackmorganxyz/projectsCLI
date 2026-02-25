@@ -50,7 +50,7 @@ Auto-detects your OS and architecture. Installs to `/usr/local/bin`. It's smarte
 
 ```sh
 git clone https://github.com/jackmorganxyz/projectsCLI.git
-cd projects-cli
+cd projectsCLI
 make build
 make install  # copies to /usr/local/bin
 ```

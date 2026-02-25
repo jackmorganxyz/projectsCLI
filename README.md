@@ -72,7 +72,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 **From source**:
 ```sh
 git clone https://github.com/jackmorganxyz/projectsCLI.git
-cd projects-cli && make build && make install
+cd projectsCLI && make build && make install
 ```
 
 ## ⚙️ Configuration
@@ -102,7 +102,7 @@ claude install-skill https://github.com/jackmorganxyz/projectsCLI/tree/main/skil
 ```sh
 # Clone just the skill
 git clone --depth 1 --filter=blob:none --sparse https://github.com/jackmorganxyz/projectsCLI.git
-cd projects-cli && git sparse-checkout set skill/projects-cli
+cd projectsCLI && git sparse-checkout set skill/projects-cli
 cp -r skill/projects-cli ~/.claude/skills/projects-cli
 ```
 

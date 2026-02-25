@@ -7,7 +7,7 @@ Thanks for your interest in contributing! Whether it's a bug fix, new feature, o
 ```bash
 # Clone the repo
 git clone https://github.com/jackmorganxyz/projectsCLI.git
-cd projects-cli
+cd projectsCLI
 
 # Build the binary
 make build
