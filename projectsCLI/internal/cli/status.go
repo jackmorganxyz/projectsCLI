@@ -23,6 +23,8 @@ type projectHealth struct {
 
 // NewStatusCmd shows health check across all projects.
 func NewStatusCmd() *cobra.Command {
+	var field string
+
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: "Show project health check",
@@ -39,7 +41,7 @@ func NewStatusCmd() *cobra.Command {
 			}
 
 			if len(projects) == 0 {
-				if tui.IsJSON() {
+				if tui.IsJSON() || field != "" {
 					return writeJSON(cmd.OutOrStdout(), []projectHealth{})
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomEmptyState()))
@@ -64,6 +66,18 @@ func NewStatusCmd() *cobra.Command {
 				}
 
 				health = append(health, h)
+			}
+
+			// Handle --field flag for field extraction
+			if field != "" {
+				for _, h := range health {
+					val, err := extractField(h, field)
+					if err != nil {
+						return err
+					}
+					fmt.Fprintln(cmd.OutOrStdout(), val)
+				}
+				return nil
 			}
 
 			if tui.IsJSON() {
@@ -107,6 +121,8 @@ func NewStatusCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&field, "field", "", "extract specific field from JSON output (e.g. --field slug, --field status)")
 
 	return cmd
 }

@@ -56,3 +56,34 @@ func writeJSON(w io.Writer, v any) error {
 	enc.SetIndent("", "  ")
 	return enc.Encode(v)
 }
+
+// extractField extracts a field value from a struct or map based on dot-notation path.
+// For example: "dir", "meta.title", "meta.slug"
+func extractField(v any, path string) (any, error) {
+	// Convert struct/slice to map via JSON
+	var m map[string]any
+	data, err := json.Marshal(v)
+	if err != nil {
+		return nil, fmt.Errorf("marshal to JSON: %w", err)
+	}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, fmt.Errorf("unmarshal from JSON: %w", err)
+	}
+
+	parts := strings.Split(path, ".")
+	current := any(m)
+
+	for _, part := range parts {
+		switch c := current.(type) {
+		case map[string]any:
+			val, ok := c[part]
+			if !ok {
+				return nil, fmt.Errorf("field %q not found", path)
+			}
+			current = val
+		default:
+			return nil, fmt.Errorf("cannot access field %q on type %T", part, current)
+		}
+	}
+	return current, nil
+}

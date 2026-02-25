@@ -11,6 +11,8 @@ import (
 
 // NewViewCmd displays project details.
 func NewViewCmd() *cobra.Command {
+	var field string
+
 	cmd := &cobra.Command{
 		Use:   "view <slug>",
 		Short: "View project details",
@@ -26,6 +28,16 @@ func NewViewCmd() *cobra.Command {
 			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
 			if err != nil {
 				return err
+			}
+
+			// Handle --field flag for field extraction
+			if field != "" {
+				val, err := extractField(proj, field)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), val)
+				return nil
 			}
 
 			if tui.IsJSON() {
@@ -65,6 +77,8 @@ func NewViewCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVar(&field, "field", "", "extract specific field from JSON output (e.g. --field dir, --field meta.title)")
 
 	return cmd
 }
