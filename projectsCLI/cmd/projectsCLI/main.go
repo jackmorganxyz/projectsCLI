@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jackpmorgan/projctl/internal/cli"
-	"github.com/jackpmorgan/projctl/internal/config"
-	"github.com/jackpmorgan/projctl/internal/tui"
+	"github.com/jackpmorgan/projectsCLI/internal/cli"
+	"github.com/jackpmorgan/projectsCLI/internal/config"
+	"github.com/jackpmorgan/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -29,9 +29,9 @@ func newRootCmd() *cobra.Command {
 	configPath := defaultConfigPath
 
 	rootCmd := &cobra.Command{
-		Use:          "projctl",
+		Use:          "projectsCLI",
 		Short:        "Manage project scaffolds ✨",
-		Long:         "projctl manages project scaffolds under ~/.openclaw/projects/.\nAgents use it via projctl <command> --json; humans get a polished TUI.",
+		Long:         "projectsCLI manages project scaffolds under ~/.openclaw/projects/.\nAgents use it via projectsCLI <command> --json; humans get a polished TUI.",
 		Version:      version,
 		SilenceUsage: true,
 		Run: func(cmd *cobra.Command, _ []string) {

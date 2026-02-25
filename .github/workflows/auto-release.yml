@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "projctl/**"
+      - "projectsCLI/**"
 
 permissions:
   contents: write

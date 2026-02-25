@@ -8,7 +8,7 @@ import (
 	toml "github.com/pelletier/go-toml/v2"
 )
 
-// Config holds all projctl configuration fields.
+// Config holds all projectsCLI configuration fields.
 type Config struct {
 	ProjectsDir string `toml:"projects_dir,omitempty"`
 	Editor      string `toml:"editor,omitempty"`

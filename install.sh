@@ -2,7 +2,7 @@
 set -e
 
 REPO="jackpmorgan/projects-cli"
-BINARY="projctl"
+BINARY="projectsCLI"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 
 # Detect OS
@@ -57,4 +57,4 @@ chmod +x "${INSTALL_DIR}/${BINARY}"
 
 echo ""
 echo "${BINARY} ${TAG} installed to ${INSTALL_DIR}/${BINARY}"
-echo "Run 'projctl --help' to get started."
+echo "Run 'projectsCLI --help' to get started."

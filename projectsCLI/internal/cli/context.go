@@ -3,7 +3,7 @@ package cli
 import (
 	"context"
 
-	"github.com/jackpmorgan/projctl/internal/config"
+	"github.com/jackpmorgan/projectsCLI/internal/config"
 )
 
 type runtimeContextKey struct{}

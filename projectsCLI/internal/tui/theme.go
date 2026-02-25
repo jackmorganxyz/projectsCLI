@@ -17,7 +17,7 @@ const (
 	ColorInfo    = "#60A5FA" // Blue (bright)
 )
 
-// Theme contains shared styles for projctl terminal rendering.
+// Theme contains shared styles for projectsCLI terminal rendering.
 type Theme struct {
 	headerStyle  lipgloss.Style
 	successStyle lipgloss.Style
@@ -37,7 +37,7 @@ type Theme struct {
 // DefaultTheme is the shared application style set.
 var DefaultTheme = NewTheme()
 
-// NewTheme builds the default projctl theme.
+// NewTheme builds the default projectsCLI theme.
 func NewTheme() Theme {
 	primary := lipgloss.Color(ColorPrimary)
 	success := lipgloss.Color(ColorSuccess)

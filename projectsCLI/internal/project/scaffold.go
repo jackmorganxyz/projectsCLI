@@ -21,6 +21,8 @@ func Scaffold(projectsDir string, meta ProjectMeta) (string, error) {
 		filepath.Join(dir, "memory"),
 		filepath.Join(dir, "context"),
 		filepath.Join(dir, "tasks"),
+		filepath.Join(dir, "code"),
+		filepath.Join(dir, "private"),
 	}
 	for _, d := range dirs {
 		if err := os.MkdirAll(d, 0755); err != nil {
@@ -40,6 +42,7 @@ func Scaffold(projectsDir string, meta ProjectMeta) (string, error) {
 		filepath.Join(dir, "context", "CONTEXT.md"): fmt.Sprintf("# %s - Context\n\nProject context, decisions, and architecture notes.\n", meta.Title),
 		filepath.Join(dir, "tasks", "TODO.md"):      fmt.Sprintf("# %s - Tasks\n\n- [ ] Initial setup\n", meta.Title),
 		filepath.Join(dir, "docs", "README.md"):     fmt.Sprintf("# %s\n\n%s\n", meta.Title, meta.Description),
+		filepath.Join(dir, ".gitignore"):             "# Private files — never pushed to remote\nprivate/\n",
 	}
 
 	for path, content := range templates {

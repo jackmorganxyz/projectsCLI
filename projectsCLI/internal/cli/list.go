@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/jackpmorgan/projctl/internal/project"
-	"github.com/jackpmorgan/projctl/internal/tui"
+	"github.com/jackpmorgan/projectsCLI/internal/project"
+	"github.com/jackpmorgan/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
 

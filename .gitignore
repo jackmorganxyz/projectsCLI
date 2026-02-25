@@ -1,3 +1,5 @@
 .DS_Store
-projctl/projctl
+projectsCLI/projectsCLI
+projectsCLI/projctl
 dist/
+.claude/

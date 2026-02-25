@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/jackpmorgan/projctl/internal/project"
+	"github.com/jackpmorgan/projectsCLI/internal/project"
 	"github.com/spf13/cobra"
 )
 

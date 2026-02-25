@@ -67,7 +67,7 @@ func WriteRegistry(projectsDir string) error {
 	sb.WriteString("Auto-generated registry of all projects.\n\n")
 
 	if len(projects) == 0 {
-		sb.WriteString("No projects yet. Run `projctl create <slug>` to get started.\n")
+		sb.WriteString("No projects yet. Run `projectsCLI create <slug>` to get started.\n")
 	} else {
 		sb.WriteString("| Slug | Title | Status | Created |\n")
 		sb.WriteString("|------|-------|--------|---------|\n")

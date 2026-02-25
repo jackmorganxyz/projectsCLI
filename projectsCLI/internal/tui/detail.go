@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/jackpmorgan/projctl/internal/project"
+	"github.com/jackpmorgan/projectsCLI/internal/project"
 )
 
 // DetailModel displays a scrollable project view.

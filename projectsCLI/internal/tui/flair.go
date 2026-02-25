@@ -138,9 +138,9 @@ var noChangesQuips = []string{
 func RandomNoChanges() string { return pick(noChangesQuips) }
 
 var emptyStateMessages = []string{
-	"It's quiet in here... too quiet. Run 'projctl create <slug>' to fix that.",
-	"No projects yet — the world is your oyster. Try 'projctl create <slug>'.",
-	"A blank canvas awaits. Zero projects, infinite potential. Run 'projctl create <slug>'.",
+	"It's quiet in here... too quiet. Run 'projectsCLI create <slug>' to fix that.",
+	"No projects yet — the world is your oyster. Try 'projectsCLI create <slug>'.",
+	"A blank canvas awaits. Zero projects, infinite potential. Run 'projectsCLI create <slug>'.",
 }
 
 // RandomEmptyState returns a random empty-state message.
@@ -163,11 +163,11 @@ func RandomSpinnerMessage() string { return pick(spinnerMessages) }
 func SpinnerMessages() []string { return spinnerMessages }
 
 var tips = []string{
-	"Tip: Use 'projctl ls' for a quick overview of all your projects.",
-	"Tip: 'projctl push <slug>' handles git init, commit, and GitHub in one step.",
+	"Tip: Use 'projectsCLI ls' for a quick overview of all your projects.",
+	"Tip: 'projectsCLI push <slug>' handles git init, commit, and GitHub in one step.",
 	"Tip: Add tags with --tags to stay organized.",
-	"Tip: 'projctl status' gives you a health check across all projects.",
-	"Tip: Set $EDITOR to customize which editor 'projctl edit' opens.",
+	"Tip: 'projectsCLI status' gives you a health check across all projects.",
+	"Tip: Set $EDITOR to customize which editor 'projectsCLI edit' opens.",
 }
 
 // MaybeTip returns a styled tip ~30% of the time, or empty string.
@@ -195,7 +195,7 @@ func Banner() string {
 	title := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(ColorPrimary)).
 		Bold(true).
-		Render("projctl")
+		Render("projectsCLI")
 
 	tag := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(ColorMuted)).

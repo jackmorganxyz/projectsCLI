@@ -1,4 +1,4 @@
-module github.com/jackpmorgan/projctl
+module github.com/jackpmorgan/projectsCLI
 
 go 1.25.0
 
