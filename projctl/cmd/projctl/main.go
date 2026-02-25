@@ -1,0 +1,74 @@
+package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/jackpmorgan/projctl/internal/cli"
+	"github.com/jackpmorgan/projctl/internal/config"
+	"github.com/jackpmorgan/projctl/internal/tui"
+	"github.com/spf13/cobra"
+)
+
+var version = "dev"
+
+func main() {
+	if err := newRootCmd().Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func newRootCmd() *cobra.Command {
+	defaultConfigPath, err := config.ConfigPath()
+	if err != nil {
+		defaultConfigPath = "~/.openclaw/config.toml"
+	}
+
+	var jsonOutput bool
+	configPath := defaultConfigPath
+
+	rootCmd := &cobra.Command{
+		Use:          "projctl",
+		Short:        "Manage project scaffolds",
+		Long:         "projctl manages project scaffolds under ~/.openclaw/projects/.\nAgents use it via projctl <command> --json; humans get a polished TUI.",
+		Version:      version,
+		SilenceUsage: true,
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
+			if err := config.EnsureDirs(); err != nil {
+				return fmt.Errorf("create directories: %w", err)
+			}
+
+			cfg, err := config.LoadFromPath(configPath)
+			if err != nil {
+				return fmt.Errorf("load config %q: %w", configPath, err)
+			}
+
+			runtime := cli.RuntimeContext{
+				Config:     cfg,
+				ConfigPath: configPath,
+				JSON:       jsonOutput,
+			}
+			cmd.SetContext(cli.WithRuntimeContext(cmd.Context(), runtime))
+			tui.SetJSON(jsonOutput)
+
+			return nil
+		},
+	}
+
+	rootCmd.PersistentFlags().BoolVar(&jsonOutput, "json", false, "output JSON (auto-enabled when piped)")
+	rootCmd.PersistentFlags().StringVar(&configPath, "config", defaultConfigPath, "path to config file")
+
+	rootCmd.AddCommand(
+		cli.NewCreateCmd(),
+		cli.NewListCmd(),
+		cli.NewLoadCmd(),
+		cli.NewDeleteCmd(),
+		cli.NewViewCmd(),
+		cli.NewEditCmd(),
+		cli.NewStatusCmd(),
+		cli.NewPushCmd(),
+	)
+
+	return rootCmd
+}
