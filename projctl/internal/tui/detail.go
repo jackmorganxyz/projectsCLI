@@ -67,7 +67,7 @@ func (m DetailModel) View() string {
 	helpStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color(ColorMuted))
 
-	header := titleStyle.Render(m.project.Meta.Title)
+	header := titleStyle.Render("📂 " + m.project.Meta.Title)
 	footer := helpStyle.Render(fmt.Sprintf("  scroll %d%% | q quit", int(m.viewport.ScrollPercent()*100)))
 
 	return header + "\n\n" + m.viewport.View() + "\n" + footer

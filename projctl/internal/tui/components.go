@@ -28,10 +28,12 @@ func RunConfirm(question string) (bool, error) {
 
 // SpinnerModel is a shared Bubble Tea model for async operations.
 type SpinnerModel struct {
-	spinner spinner.Model
-	message string
-	done    bool
-	err     error
+	spinner   spinner.Model
+	message   string
+	messages  []string
+	tickCount int
+	done      bool
+	err       error
 }
 
 // DoneMsg signals that an async operation completed.
@@ -42,14 +44,18 @@ type DoneMsg struct {
 // NewSpinnerModel creates a themed spinner for long-running work.
 func NewSpinnerModel(message string) SpinnerModel {
 	s := spinner.New()
-	s.Spinner = spinner.Dot
+	s.Spinner = spinner.MiniDot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color(ColorPrimary))
 
 	if strings.TrimSpace(message) == "" {
-		message = "Working..."
+		message = RandomSpinnerMessage()
 	}
 
-	return SpinnerModel{spinner: s, message: message}
+	return SpinnerModel{
+		spinner:  s,
+		message:  message,
+		messages: SpinnerMessages(),
+	}
 }
 
 func (m SpinnerModel) Init() tea.Cmd {
@@ -63,6 +69,11 @@ func (m SpinnerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.err = typed.Err
 		return m, tea.Quit
 	case spinner.TickMsg:
+		m.tickCount++
+		if m.tickCount > 0 && m.tickCount%20 == 0 && len(m.messages) > 0 {
+			idx := (m.tickCount / 20) % len(m.messages)
+			m.message = m.messages[idx]
+		}
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(typed)
 		return m, cmd
@@ -81,7 +92,7 @@ func (m SpinnerModel) View() string {
 		if m.err != nil {
 			return ErrorMessage(m.err.Error())
 		}
-		return SuccessMessage("Done")
+		return SuccessMessage("Done! " + RandomCelebration())
 	}
 	return fmt.Sprintf("%s %s", m.spinner.View(), m.message)
 }

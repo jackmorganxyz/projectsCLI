@@ -42,7 +42,7 @@ func NewStatusCmd() *cobra.Command {
 				if tui.IsJSON() {
 					return writeJSON(cmd.OutOrStdout(), []projectHealth{})
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), tui.Muted("No projects found."))
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomEmptyState()))
 				return nil
 			}
 
@@ -101,7 +101,7 @@ func NewStatusCmd() *cobra.Command {
 				})
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), tui.Header("Project Health"))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.Header("🩺 Project Health"))
 			fmt.Fprintln(cmd.OutOrStdout())
 			fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
 			return nil

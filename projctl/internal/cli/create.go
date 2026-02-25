@@ -73,9 +73,14 @@ func NewCreateCmd() *cobra.Command {
 				})
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Created project %q", slug)))
-			fmt.Fprintln(cmd.OutOrStdout(), tui.FormatField("Directory", dir))
-			fmt.Fprintln(cmd.OutOrStdout(), tui.FormatField("Created", time.Now().Format("2006-01-02")))
+			w := cmd.OutOrStdout()
+			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %q — %s", slug, tui.RandomCreateCheer())))
+			fmt.Fprintln(w, tui.FormatField("Directory", dir))
+			fmt.Fprintln(w, tui.FormatField("Created", time.Now().Format("2006-01-02")))
+			if tip := tui.MaybeTip(); tip != "" {
+				fmt.Fprintln(w)
+				fmt.Fprintln(w, tip)
+			}
 			return nil
 		},
 	}

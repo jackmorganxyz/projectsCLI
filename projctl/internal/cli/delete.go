@@ -33,12 +33,12 @@ func NewDeleteCmd() *cobra.Command {
 			}
 
 			if !force && tui.IsInteractive() {
-				confirmed, err := tui.RunConfirm(fmt.Sprintf("Delete project %q? This cannot be undone.", slug))
+				confirmed, err := tui.RunConfirm(tui.RandomDeleteConfirm(slug))
 				if err != nil {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), tui.Muted("Cancelled."))
+					fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomDeleteCancelled()))
 					return nil
 				}
 			} else if !force {
@@ -61,6 +61,7 @@ func NewDeleteCmd() *cobra.Command {
 			}
 
 			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Deleted project %q", slug)))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomDeleteFarewell()))
 			return nil
 		},
 	}
