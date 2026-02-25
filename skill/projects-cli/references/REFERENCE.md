@@ -91,6 +91,7 @@ None (uses global `--json`).
 
 - Interactive TTY: launches TUI dashboard
 - Non-TTY or `--json`: outputs JSON array
+- Optional fields (`tags`, `description`, `git_remote`, `body`) are omitted from JSON when empty
 
 ---
 
@@ -164,8 +165,8 @@ export PROJECT_TITLE="My Project"
 export PROJECT_STATUS="active"
 export PROJECT_DIR="/Users/you/.projects/projects/my-project"
 export PROJECT_DESCRIPTION="Description"
-export PROJECT_TAGS="go"
-export PROJECT_GIT_REMOTE="https://github.com/user/my-project"
+export PROJECT_TAGS="go"                                        # only if tags are non-empty
+export PROJECT_GIT_REMOTE="https://github.com/user/my-project"  # only if remote is set
 ```
 
 **`--bash`**:
@@ -175,9 +176,11 @@ PROJECT_TITLE="My Project"
 PROJECT_STATUS="active"
 PROJECT_DIR="/Users/you/.projects/projects/my-project"
 PROJECT_DESCRIPTION="Description"
-PROJECT_TAGS="go"
-PROJECT_GIT_REMOTE="https://github.com/user/my-project"
+PROJECT_TAGS="go"                                        # only if tags are non-empty
+PROJECT_GIT_REMOTE="https://github.com/user/my-project"  # only if remote is set
 ```
+
+**Note:** `PROJECT_TAGS` and `PROJECT_GIT_REMOTE` are only included when the project has tags or a git remote configured, respectively.
 
 ---
 
@@ -342,8 +345,10 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 1. If not a git repo: runs `git init`
 2. Runs `git add -A`
 3. If uncommitted changes: commits with provided message
-4. If no remote and `--no-github` is false: creates GitHub repo via `gh` CLI
-5. If remote exists: pushes to remote with `--set-upstream`
+4. If no remote and `--no-github` is false: creates GitHub repo via `gh repo create --source --push` (creates and pushes in one step)
+5. Else if remote already exists: pushes to remote with `git push -u origin <branch>`
+
+**Note:** Steps 4 and 5 are mutually exclusive — either a new repo is created (which includes the push), or an existing remote is pushed to.
 
 ### Requirements
 
@@ -361,11 +366,11 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 | `title` | string | yes | Display name |
 | `slug` | string | yes | Unique identifier (`^[a-z0-9]+(?:-[a-z0-9]+)*$`) |
 | `status` | string | yes | One of: `active`, `paused`, `archived` |
-| `tags` | []string | no | Categorization tags |
-| `description` | string | no | Short description |
+| `tags` | []string | no | Categorization tags (omitted from JSON when empty) |
+| `description` | string | no | Short description (omitted from JSON when empty) |
 | `created_at` | string (RFC 3339) | yes | Creation timestamp |
 | `updated_at` | string (RFC 3339) | yes | Last update timestamp |
-| `git_remote` | string (URL) | no | Git remote URL, set by `push` |
+| `git_remote` | string (URL) | no | Git remote URL, set by `push` (omitted from JSON when empty) |
 
 ### Config Schema (`~/.projects/config.toml`)
 

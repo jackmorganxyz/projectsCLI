@@ -133,7 +133,7 @@ projects create --title "My API" --tags "go,api" --json
 projects ls --json
 ```
 
-**JSON response**: Array of project objects, each with `meta`, `body`, and `dir` fields.
+**JSON response**: Array of project objects, each with `meta`, `body`, and `dir` fields. Note: `tags`, `description`, `git_remote`, and `body` are omitted from JSON when empty.
 
 ```json
 [{"meta": {"title": "My API", "slug": "my-api", "status": "active", "tags": ["go"], "description": "...", "created_at": "...", "updated_at": "...", "git_remote": "..."}, "body": "# My API\n...", "dir": "/path/to/my-api"}]
@@ -178,7 +178,7 @@ projects push <slug> -m "commit message" --json
 - `--private` — Create private GitHub repo (default: `true`)
 - `--no-github` — Skip GitHub repo creation
 
-**Workflow**: git init (if needed) -> git add -A -> git commit -> gh repo create (if no remote) -> git push
+**Workflow**: git init (if needed) -> git add -A -> git commit -> if no remote: `gh repo create --source --push` (creates repo and pushes) / if remote exists: `git push -u origin <branch>`
 
 **Requires**: `gh` CLI installed and authenticated for GitHub repo creation.
 
@@ -200,7 +200,7 @@ projects load <slug> --export
 projects load <slug> --bash
 ```
 
-Exported variables: `PROJECT_SLUG`, `PROJECT_TITLE`, `PROJECT_STATUS`, `PROJECT_DIR`, `PROJECT_DESCRIPTION`, `PROJECT_TAGS`, `PROJECT_GIT_REMOTE`.
+Exported variables: `PROJECT_SLUG`, `PROJECT_TITLE`, `PROJECT_STATUS`, `PROJECT_DIR`, `PROJECT_DESCRIPTION`. Additionally, `PROJECT_TAGS` and `PROJECT_GIT_REMOTE` are exported when non-empty.
 
 ## Deleting a Project
 
