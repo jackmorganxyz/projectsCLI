@@ -18,7 +18,6 @@ func NewCreateCmd() *cobra.Command {
 		description string
 		tags        []string
 		status      string
-		folder      string
 	)
 
 	cmd := &cobra.Command{
@@ -61,19 +60,13 @@ If slug is omitted, it is generated from --title.`,
 				meta.Status = status
 			}
 
-			// Use --folder flag or fall back to root --folder persistent flag.
-			targetFolder := folder
-			if targetFolder == "" {
-				targetFolder = runtime.Folder
-			}
-
 			// Determine the target directory.
 			projectsDir := runtime.Config.ProjectsDir
-			if targetFolder != "" {
-				if runtime.Config.FolderByName(targetFolder) == nil {
-					return fmt.Errorf("folder %q not configured; run 'projects folder add %s --account <gh-user>' first", targetFolder, targetFolder)
+			if runtime.Folder != "" {
+				if runtime.Config.FolderByName(runtime.Folder) == nil {
+					return fmt.Errorf("folder %q not configured; run 'projects folder add %s --account <gh-user>' first", runtime.Folder, runtime.Folder)
 				}
-				projectsDir = filepath.Join(runtime.Config.ProjectsDir, targetFolder)
+				projectsDir = filepath.Join(runtime.Config.ProjectsDir, runtime.Folder)
 			}
 
 			dir, err := project.Scaffold(projectsDir, meta)
@@ -101,8 +94,8 @@ If slug is omitted, it is generated from --title.`,
 					"dir":        dir,
 					"created_at": meta.CreatedAt,
 				}
-				if targetFolder != "" {
-					result["folder"] = targetFolder
+				if runtime.Folder != "" {
+					result["folder"] = runtime.Folder
 				}
 				return writeJSON(cmd.OutOrStdout(), result)
 			}
@@ -110,8 +103,8 @@ If slug is omitted, it is generated from --title.`,
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %q — %s", slug, tui.RandomCreateCheer())))
 			fmt.Fprintln(w, tui.FormatField("Directory", dir))
-			if targetFolder != "" {
-				fmt.Fprintln(w, tui.FormatField("Folder", targetFolder))
+			if runtime.Folder != "" {
+				fmt.Fprintln(w, tui.FormatField("Folder", runtime.Folder))
 			}
 			fmt.Fprintln(w, tui.FormatField("Created", time.Now().Format("2006-01-02")))
 			if tip := tui.MaybeTip(); tip != "" {
@@ -126,7 +119,6 @@ If slug is omitted, it is generated from --title.`,
 	cmd.Flags().StringVar(&description, "description", "", "project description")
 	cmd.Flags().StringSliceVar(&tags, "tags", nil, "project tags (comma-separated)")
 	cmd.Flags().StringVar(&status, "status", "active", "project status")
-	cmd.Flags().StringVar(&folder, "folder", "", "create project in a named folder (for multi-account setups)")
 
 	return cmd
 }

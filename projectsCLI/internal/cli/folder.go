@@ -62,23 +62,19 @@ push using the associated GitHub account.`,
 				return fmt.Errorf("--account is required: specify the GitHub username for this folder")
 			}
 
-			// Validate gh CLI and account.
-			if !git.HasGHCLI() {
-				return fmt.Errorf("gh CLI is not installed; folders require gh for account switching\n\nInstall it from https://cli.github.com then run: gh auth login")
-			}
-
-			accounts := git.ListAuthAccounts()
-			if len(accounts) == 0 {
-				return fmt.Errorf("no GitHub accounts found in gh auth; run 'gh auth login' first")
-			}
-
-			if !git.IsAuthAccount(account) {
-				return fmt.Errorf("account %q is not authenticated with gh\n\nAuthenticated accounts: %s\n\nRun 'gh auth login' to add it", account, strings.Join(accounts, ", "))
-			}
-
 			// Check for duplicate folder name.
 			if runtime.Config.FolderByName(name) != nil {
 				return fmt.Errorf("folder %q already exists", name)
+			}
+
+			// Warn (don't block) if gh isn't set up — the folder is still useful
+			// as config, and auth can be sorted out before the first push.
+			if !git.HasGHCLI() {
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.WarningMessage("gh CLI not found — install it and run 'gh auth login' before pushing"))
+			} else if accounts := git.ListAuthAccounts(); len(accounts) > 0 && !git.IsAuthAccount(account) {
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.WarningMessage(
+					fmt.Sprintf("account %q not found in gh auth (have: %s) — run 'gh auth login' to add it",
+						account, strings.Join(accounts, ", "))))
 			}
 
 			// Create the folder directory.
