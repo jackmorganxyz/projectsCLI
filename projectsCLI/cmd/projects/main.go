@@ -87,6 +87,7 @@ func newRootCmd() *cobra.Command {
 		cli.NewPushCmd(),
 		cli.NewUpdateCmd(),
 		cli.NewFolderCmd(),
+		cli.NewMoveCmd(),
 	)
 
 	return rootCmd

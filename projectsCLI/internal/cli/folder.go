@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/charmbracelet/huh"
 	"github.com/jackmorganxyz/projectsCLI/internal/config"
 	"github.com/jackmorganxyz/projectsCLI/internal/git"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
@@ -43,7 +44,10 @@ func newFolderAddCmd() *cobra.Command {
 
 The folder name is used as a subdirectory under your projects directory.
 Projects created with --folder <name> will live in this directory and
-push using the associated GitHub account.`,
+push using the associated GitHub account.
+
+If --account is omitted and gh is authenticated, you'll be prompted to
+pick from your logged-in accounts.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runtime, ok := RuntimeFromContext(cmd.Context())
@@ -58,13 +62,18 @@ push using the associated GitHub account.`,
 				return fmt.Errorf("invalid folder name: %w", err)
 			}
 
-			if account == "" {
-				return fmt.Errorf("--account is required: specify the GitHub username for this folder")
-			}
-
 			// Check for duplicate folder name.
 			if runtime.Config.FolderByName(name) != nil {
 				return fmt.Errorf("folder %q already exists", name)
+			}
+
+			// Resolve the account: flag > interactive picker > error.
+			if account == "" {
+				picked, err := pickGHAccount(cmd)
+				if err != nil {
+					return err
+				}
+				account = picked
 			}
 
 			// Warn (don't block) if gh isn't set up — the folder is still useful
@@ -112,10 +121,54 @@ push using the associated GitHub account.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&account, "account", "", "GitHub username/account for this folder (required)")
-	_ = cmd.MarkFlagRequired("account")
+	cmd.Flags().StringVar(&account, "account", "", "GitHub username/account for this folder")
 
 	return cmd
+}
+
+// pickGHAccount tries to interactively pick a gh account. Falls back to
+// a clear error message if non-interactive or gh isn't available.
+func pickGHAccount(cmd *cobra.Command) (string, error) {
+	if !git.HasGHCLI() {
+		return "", fmt.Errorf("--account is required (gh CLI not available for interactive selection)")
+	}
+
+	accounts := git.ListAuthAccounts()
+	if len(accounts) == 0 {
+		return "", fmt.Errorf("--account is required (no accounts found in gh auth)\n\nRun 'gh auth login' first, or pass --account <username>")
+	}
+
+	if !tui.IsInteractive() {
+		return "", fmt.Errorf("--account is required in non-interactive mode (available: %s)", strings.Join(accounts, ", "))
+	}
+
+	// Single account — just use it.
+	if len(accounts) == 1 {
+		fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted(fmt.Sprintf("Using GitHub account %q", accounts[0])))
+		return accounts[0], nil
+	}
+
+	// Multiple accounts — let the user pick.
+	var selected string
+	options := make([]huh.Option[string], len(accounts))
+	for i, a := range accounts {
+		options[i] = huh.NewOption(a, a)
+	}
+
+	err := huh.NewSelect[string]().
+		Title("Which GitHub account for this folder?").
+		Options(options...).
+		Value(&selected).
+		Run()
+
+	if err != nil {
+		return "", fmt.Errorf("selection cancelled")
+	}
+	if selected == "" {
+		return "", fmt.Errorf("no account selected")
+	}
+
+	return selected, nil
 }
 
 func newFolderListCmd() *cobra.Command {
