@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jackmorganxyz/projectsCLI/internal/config"
+	"github.com/jackmorganxyz/projectsCLI/internal/git"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
@@ -58,6 +60,20 @@ push using the associated GitHub account.`,
 
 			if account == "" {
 				return fmt.Errorf("--account is required: specify the GitHub username for this folder")
+			}
+
+			// Validate gh CLI and account.
+			if !git.HasGHCLI() {
+				return fmt.Errorf("gh CLI is not installed; folders require gh for account switching\n\nInstall it from https://cli.github.com then run: gh auth login")
+			}
+
+			accounts := git.ListAuthAccounts()
+			if len(accounts) == 0 {
+				return fmt.Errorf("no GitHub accounts found in gh auth; run 'gh auth login' first")
+			}
+
+			if !git.IsAuthAccount(account) {
+				return fmt.Errorf("account %q is not authenticated with gh\n\nAuthenticated accounts: %s\n\nRun 'gh auth login' to add it", account, strings.Join(accounts, ", "))
 			}
 
 			// Check for duplicate folder name.

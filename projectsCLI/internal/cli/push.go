@@ -77,7 +77,7 @@ func NewPushCmd() *cobra.Command {
 					// Switch gh auth to the folder's account before creating the repo.
 					fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted(fmt.Sprintf("Switching to GitHub account %q...", f.GitHubAccount)))
 					if err := git.SwitchAuth(f.GitHubAccount); err != nil {
-						return fmt.Errorf("switch GitHub account to %s: %w", f.GitHubAccount, err)
+						return fmt.Errorf("could not switch to GitHub account %q — is it authenticated? Run 'gh auth login' to add it: %w", f.GitHubAccount, err)
 					}
 					org = f.GitHubAccount
 				}
@@ -99,7 +99,7 @@ func NewPushCmd() *cobra.Command {
 				// Switch gh auth if project is in a folder with a GitHub account.
 				if f := folderForProject(runtime.Config, proj); f != nil && f.GitHubAccount != "" {
 					if err := git.SwitchAuth(f.GitHubAccount); err != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not switch GitHub account: %v\n", err)
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not switch to GitHub account %q — is it authenticated? Run 'gh auth login' to add it\n", f.GitHubAccount)
 					}
 				}
 
