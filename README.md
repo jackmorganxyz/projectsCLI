@@ -39,6 +39,7 @@ This project has two READMEs because it serves two audiences:
 - **Interactive TUI dashboard** — Navigate your projects with a beautiful terminal UI ([Charmbracelet](https://charm.sh) stack)
 - **Auto JSON mode** — Pipe any command and output switches from TUI to clean JSON automatically. Machines have feelings too
 - **One-command GitHub push** — `push` handles git init, commit, repo creation, and push in a single step. Yes, really
+- **Multi-account folders** — Organize projects by GitHub account. Push from work or personal — the CLI switches `gh auth` automatically
 - **Portfolio health checks** — `status` shows git state, remotes, and uncommitted changes across all projects
 - **Smart slug generation** — Just provide a title and the slug is auto-generated for you
 - **Personality included** — Random quips, celebrations, and tips because dev tools should spark joy, not existential dread
@@ -56,6 +57,8 @@ This project has two READMEs because it serves two audiences:
 | `delete <slug>` / `rm` | Delete a project (with appropriately dramatic confirmation prompts) |
 | `status` | Health check across all projects — your morning standup, minus the standing |
 | `push <slug>` | Full git workflow: init → commit → create repo → push. One command to rule them all |
+| `folder add/list/remove` | Manage folders for multi-account GitHub setups |
+| `move <slug>` | Move a project between folders |
 
 ## 📦 Install
 
@@ -83,9 +86,18 @@ projects_dir = "~/.projects/projects"
 editor = "nvim"
 github_username = "my-username"
 auto_git_init = true
+
+# Multi-account folders (optional)
+[[folders]]
+name = "work"
+github_account = "work-username"
+
+[[folders]]
+name = "personal"
+github_account = "personal-username"
 ```
 
-All fields are optional. Sensible defaults are built in — we're not here to make you configure things. `github_username` and `auto_git_init` are prompted during first-run setup.
+All fields are optional. Sensible defaults are built in — we're not here to make you configure things. `github_username` and `auto_git_init` are prompted during first-run setup. Folders are added via `projects folder add`.
 
 ## 🤖 Agent Skill
 

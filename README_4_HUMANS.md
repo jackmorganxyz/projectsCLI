@@ -13,6 +13,7 @@ A terminal-native project manager with a nice TUI, git superpowers, and just the
 - [Getting Started](#-getting-started)
 - [What You Get](#-what-you-get)
 - [Command Reference](#-command-reference)
+- [Multi-Account Folders](#-multi-account-folders)
 - [Configuration](#-configuration)
 - [The Personality](#-the-personality)
 - [Environment Variables](#-environment-variables)
@@ -328,7 +329,89 @@ projects push my-project --no-github        # skip GitHub repo creation
 
 **Flags:** `-m` (commit message), `--private` (default `true`), `--no-github`
 
-Requires `gh` CLI for GitHub repo creation. If you already have a remote, it just pushes.
+Requires `gh` CLI for GitHub repo creation. If you already have a remote, it just pushes. If the project is in a folder with a GitHub account, `gh auth` is switched automatically before pushing.
+
+### `folder add <name>`
+
+Create a named folder tied to a GitHub account.
+
+```sh
+projects folder add work --account work-username       # explicit account
+projects folder add personal                            # interactive: picks from gh auth accounts
+```
+
+If you omit `--account` and you have multiple accounts in `gh auth`, you'll get an interactive picker. If you only have one account, it's auto-selected.
+
+### `folder list` (alias: `ls`)
+
+See all configured folders.
+
+```sh
+projects folder list
+```
+
+### `folder remove <name>` (alias: `rm`)
+
+Remove a folder from config. The directory and its projects are **not** deleted.
+
+```sh
+projects folder remove work
+```
+
+### `move <slug>`
+
+Move a project between folders, or back to the top level.
+
+```sh
+projects move my-project --folder work       # move into a folder
+projects move my-project --folder ""         # move to top level
+```
+
+---
+
+## 📂 Multi-Account Folders
+
+Got a work GitHub account and a personal one? Folders let you organize projects by account. When you push, the CLI switches `gh auth` to the right account automatically.
+
+### Setup
+
+```sh
+# Add folders for each account
+projects folder add work --account work-org
+projects folder add personal --account my-personal-gh
+
+# Or let the CLI pick from your gh keychain
+projects folder add work
+# → Interactive picker shows your authenticated accounts
+```
+
+### Creating projects in folders
+
+```sh
+projects create --title "Company API" --folder work
+projects create --title "Side Project" --folder personal
+```
+
+### Pushing — auth switches automatically
+
+```sh
+projects push company-api -m "Add endpoints"
+# → Switches to "work-org" account, creates repo under that account, pushes
+```
+
+### Moving existing projects
+
+```sh
+projects move old-project --folder personal
+```
+
+### How it works
+
+- Each folder is a subdirectory under your projects directory (e.g. `~/.projects/projects/work/`)
+- The `--folder` flag works on any command to scope it to that folder
+- On `push`, the CLI runs `gh auth switch --user <account>` before creating repos or pushing
+- `list` and `status` show a Folder column when you have folders configured
+- Projects without a folder live at the top level — everything is backward compatible
 
 ---
 
@@ -348,9 +431,18 @@ github_username = "my-username"
 
 # Automatically git init new projects (prompted during first-run setup)
 auto_git_init = true
+
+# Multi-account folders (added via `projects folder add`)
+[[folders]]
+name = "work"
+github_account = "work-org"
+
+[[folders]]
+name = "personal"
+github_account = "my-personal-gh"
 ```
 
-The config file is created automatically the first time you run any command. You'll be prompted for your GitHub username and git preference during setup. All fields are optional — sensible defaults are built in. We're not here to make you configure things.
+The config file is created automatically the first time you run any command. You'll be prompted for your GitHub username and git preference during setup. All fields are optional — sensible defaults are built in. Folders are managed via the `folder` command — you don't need to edit TOML by hand.
 
 ---
 
