@@ -22,7 +22,7 @@ func NewListCmd() *cobra.Command {
 				return fmt.Errorf("missing runtime context")
 			}
 
-			projects, err := project.ListProjects(runtime.Config.ProjectsDir)
+			projects, err := listAllProjects(runtime.Config, runtime.Folder)
 			if err != nil {
 				return err
 			}
@@ -32,7 +32,6 @@ func NewListCmd() *cobra.Command {
 				if len(projects) == 0 {
 					return nil
 				}
-				// For list, we extract field from each project
 				for _, p := range projects {
 					val, err := extractField(p, field)
 					if err != nil {
@@ -57,23 +56,46 @@ func NewListCmd() *cobra.Command {
 				return runDashboard(projects)
 			}
 
-			// Plain text table.
-			headers := []string{"Slug", "Title", "Status", "Created"}
-			var rows [][]string
-			for _, p := range projects {
-				created := p.Meta.CreatedAt
-				if len(created) > 10 {
-					created = created[:10]
+			// Plain text table — include Folder column if folders are configured.
+			hasFolders := len(runtime.Config.Folders) > 0
+			if hasFolders {
+				headers := []string{"Slug", "Folder", "Title", "Status", "Created"}
+				var rows [][]string
+				for _, p := range projects {
+					created := p.Meta.CreatedAt
+					if len(created) > 10 {
+						created = created[:10]
+					}
+					folderDisplay := p.Folder
+					if folderDisplay == "" {
+						folderDisplay = "-"
+					}
+					rows = append(rows, []string{
+						p.Meta.Slug,
+						folderDisplay,
+						p.Meta.Title,
+						p.Meta.Status,
+						created,
+					})
 				}
-				rows = append(rows, []string{
-					p.Meta.Slug,
-					p.Meta.Title,
-					p.Meta.Status,
-					created,
-				})
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
+			} else {
+				headers := []string{"Slug", "Title", "Status", "Created"}
+				var rows [][]string
+				for _, p := range projects {
+					created := p.Meta.CreatedAt
+					if len(created) > 10 {
+						created = created[:10]
+					}
+					rows = append(rows, []string{
+						p.Meta.Slug,
+						p.Meta.Title,
+						p.Meta.Status,
+						created,
+					})
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
 			}
-
-			fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
 			return nil
 		},
 	}

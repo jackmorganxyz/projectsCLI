@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/jackmorganxyz/projectsCLI/internal/git"
@@ -59,7 +60,16 @@ If slug is omitted, it is generated from --title.`,
 				meta.Status = status
 			}
 
-			dir, err := project.Scaffold(runtime.Config.ProjectsDir, meta)
+			// Determine the target directory.
+			projectsDir := runtime.Config.ProjectsDir
+			if runtime.Folder != "" {
+				if runtime.Config.FolderByName(runtime.Folder) == nil {
+					return fmt.Errorf("folder %q not configured; run 'projects folder add %s --account <gh-user>' first", runtime.Folder, runtime.Folder)
+				}
+				projectsDir = filepath.Join(runtime.Config.ProjectsDir, runtime.Folder)
+			}
+
+			dir, err := project.Scaffold(projectsDir, meta)
 			if err != nil {
 				return err
 			}
@@ -78,17 +88,24 @@ If slug is omitted, it is generated from --title.`,
 			_ = project.WriteRegistry(runtime.Config.ProjectsDir)
 
 			if tui.IsJSON() {
-				return writeJSON(cmd.OutOrStdout(), map[string]any{
+				result := map[string]any{
 					"status":     "created",
 					"slug":       slug,
 					"dir":        dir,
 					"created_at": meta.CreatedAt,
-				})
+				}
+				if runtime.Folder != "" {
+					result["folder"] = runtime.Folder
+				}
+				return writeJSON(cmd.OutOrStdout(), result)
 			}
 
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %q — %s", slug, tui.RandomCreateCheer())))
 			fmt.Fprintln(w, tui.FormatField("Directory", dir))
+			if runtime.Folder != "" {
+				fmt.Fprintln(w, tui.FormatField("Folder", runtime.Folder))
+			}
 			fmt.Fprintln(w, tui.FormatField("Created", time.Now().Format("2006-01-02")))
 			if tip := tui.MaybeTip(); tip != "" {
 				fmt.Fprintln(w)

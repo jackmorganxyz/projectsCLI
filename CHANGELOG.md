@@ -14,6 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - First-run setup now interactively prompts for **GitHub username** and **auto-git-init** preference
 
 ### Added
+- **Multi-account folders** — organize projects by GitHub account with `folder add`, `folder list`, `folder remove`
+- **`move <slug>` command** — move projects between folders or back to top level
+- **`--folder` global flag** — scope any command to a specific folder
+- **Automatic `gh auth switch`** on `push` — projects in folders automatically switch to the folder's GitHub account
+- **Interactive GitHub account picker** — `folder add` without `--account` shows a picker from `gh auth` accounts
+- **Folder column** in `list` and `status` output when folders are configured
+- **`folder` field** in JSON output for projects, status health, create, and move commands
 - `open <slug>` command — opens the project folder in Finder (macOS), Explorer (Windows), or default file manager (Linux)
 - `Slugify()` helper — converts titles to valid slugs with unicode normalization
 - Tests for `Slugify` and `ValidateSlug`

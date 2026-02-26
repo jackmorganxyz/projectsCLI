@@ -28,7 +28,7 @@ func NewLoadCmd() *cobra.Command {
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
+			proj, err := findProject(runtime.Config, slug, runtime.Folder)
 			if err != nil {
 				return err
 			}

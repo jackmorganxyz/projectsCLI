@@ -26,6 +26,7 @@ func newRootCmd() *cobra.Command {
 	}
 
 	var jsonOutput bool
+	var folderFilter string
 	configPath := defaultConfigPath
 
 	rootCmd := &cobra.Command{
@@ -61,6 +62,7 @@ func newRootCmd() *cobra.Command {
 				Config:     cfg,
 				ConfigPath: configPath,
 				JSON:       jsonOutput,
+				Folder:     folderFilter,
 			}
 			cmd.SetContext(cli.WithRuntimeContext(cmd.Context(), runtime))
 			tui.SetJSON(jsonOutput)
@@ -71,6 +73,7 @@ func newRootCmd() *cobra.Command {
 
 	rootCmd.PersistentFlags().BoolVar(&jsonOutput, "json", false, "output JSON (auto-enabled when piped)")
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", defaultConfigPath, "path to config file")
+	rootCmd.PersistentFlags().StringVar(&folderFilter, "folder", "", "target a specific folder (for multi-account setups)")
 
 	rootCmd.AddCommand(
 		cli.NewCreateCmd(),
@@ -83,6 +86,8 @@ func newRootCmd() *cobra.Command {
 		cli.NewStatusCmd(),
 		cli.NewPushCmd(),
 		cli.NewUpdateCmd(),
+		cli.NewFolderCmd(),
+		cli.NewMoveCmd(),
 	)
 
 	return rootCmd

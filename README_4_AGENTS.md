@@ -28,6 +28,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 |------|------|---------|-------------|
 | `--json` | bool | `false` (auto `true` when piped) | Force JSON output |
 | `--config` | string | `~/.projects/config.toml` | Config file path |
+| `--folder` | string | `""` | Target a specific folder (for multi-account setups) |
 | `--version` | bool | `false` | Print version and exit |
 
 ---
@@ -62,9 +63,12 @@ If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool 
   "status": "created",
   "slug": "my-project",
   "dir": "/Users/you/.projects/projects/my-project",
-  "created_at": "2025-02-25T00:00:00Z"
+  "created_at": "2025-02-25T00:00:00Z",
+  "folder": "work"
 }
 ```
+
+`folder` is included when `--folder` is used.
 
 **Side effects:**
 - Creates directory tree: `docs/`, `memory/`, `context/`, `tasks/`, `code/`, `private/`
@@ -99,14 +103,18 @@ List all projects. Alias: `ls`.
       "git_remote": "https://github.com/user/my-project"
     },
     "body": "# My Project\n\nMarkdown content...\n",
-    "dir": "/Users/you/.projects/projects/my-project"
+    "dir": "/Users/you/.projects/projects/my-project",
+    "folder": "work"
   }
 ]
 ```
 
+`folder` is included when the project lives in a configured folder.
+
 **Behavior:**
 - Interactive TTY: launches TUI dashboard
 - Non-TTY or `--json`: outputs JSON array
+- When folders are configured, `list` and `status` include a Folder column in table output
 
 ---
 
@@ -275,6 +283,7 @@ Health check across all projects.
 [
   {
     "slug": "my-project",
+    "folder": "work",
     "title": "My Project",
     "status": "active",
     "has_git": true,
@@ -286,6 +295,7 @@ Health check across all projects.
 ```
 
 **Fields:**
+- `folder`: which folder the project belongs to (omitted when empty)
 - `has_git`: whether the project directory is a git repository
 - `has_remote`: whether a git remote is configured
 - `uncommitted`: whether there are uncommitted changes
@@ -325,10 +335,108 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 1. If not a git repo: runs `git init`
 2. Runs `git add -A`
 3. If uncommitted changes: commits with provided message
-4. If no remote and `--no-github` is false: creates GitHub repo via `gh` CLI
-5. If remote exists: pushes to remote with `--set-upstream`
+4. If project is in a folder with a GitHub account: runs `gh auth switch --user <account>`
+5. If no remote and `--no-github` is false: creates GitHub repo via `gh` CLI under the folder's account
+6. If remote exists: pushes to remote with `--set-upstream`
 
 **Requirements:** `gh` CLI must be installed and authenticated for GitHub repo creation.
+
+---
+
+### `folder`
+
+Manage named folders for multi-account GitHub setups. Subcommands: `add`, `list` (`ls`), `remove` (`rm`).
+
+#### `folder add <name>`
+
+**Arguments:**
+
+| Arg | Required | Type | Validation |
+|-----|----------|------|------------|
+| `name` | yes | string | Same slug rules: `^[a-z0-9]+(?:-[a-z0-9]+)*$` |
+
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--account` | string | `""` | GitHub username for this folder (interactive picker if omitted) |
+
+**JSON output:**
+
+```json
+{
+  "status": "created",
+  "folder": "work",
+  "github_account": "work-org",
+  "path": "/Users/you/.projects/projects/work"
+}
+```
+
+**Behavior:**
+- If `--account` is omitted and `gh` is authenticated: shows interactive account picker (auto-selects if only one account)
+- If `--account` is omitted and `gh` is not available: returns error
+- Warns (does not block) if the account isn't found in `gh auth` — the folder is still created
+- Creates the folder subdirectory under the projects directory
+
+#### `folder list` (alias: `ls`)
+
+**JSON output:**
+
+```json
+[
+  {"name": "work", "github_account": "work-org"},
+  {"name": "personal", "github_account": "my-gh-user"}
+]
+```
+
+#### `folder remove <name>` (alias: `rm`)
+
+**JSON output:**
+
+```json
+{
+  "status": "removed",
+  "folder": "work"
+}
+```
+
+**Note:** Only removes the folder from config. Does not delete the directory or its projects.
+
+---
+
+### `move <slug>`
+
+Move a project between folders or to the top level.
+
+**Arguments:**
+
+| Arg | Required | Type |
+|-----|----------|------|
+| `slug` | yes | string |
+
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--folder` | string | (required) | Target folder name, or `""` for top level |
+
+**JSON output:**
+
+```json
+{
+  "status": "moved",
+  "slug": "my-project",
+  "from": "/Users/you/.projects/projects/my-project",
+  "to": "/Users/you/.projects/projects/work/my-project",
+  "to_folder": "work"
+}
+```
+
+`from_folder` and `to_folder` are included when applicable.
+
+**Side effects:**
+- Moves the project directory via `os.Rename`
+- Regenerates `PROJECTS.md` registry
 
 ---
 
@@ -371,20 +479,31 @@ Markdown body content here.
 ### Config Schema (`~/.projects/config.toml`)
 
 ```toml
-projects_dir = "~/.projects/projects"   # Path to projects directory
-editor = "vim"                          # Editor binary name
-github_username = "my-username"         # GitHub username for repo creation
-auto_git_init = true                    # Auto-init git on `create` (default: true)
+projects_dir = "~/.projects/projects"
+editor = "vim"
+github_username = "my-username"
+auto_git_init = true
+
+[[folders]]
+name = "work"
+github_account = "work-org"
+
+[[folders]]
+name = "personal"
+github_account = "my-gh-user"
 ```
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
 | `editor` | string | `$EDITOR` or `"vim"` | Editor binary name |
-| `github_username` | string | `""` | GitHub username for `push` repo creation |
+| `github_username` | string | `""` | Default GitHub username for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
+| `folders` | array | `[]` | Named folders with associated GitHub accounts |
+| `folders[].name` | string | — | Folder name (used as subdirectory name) |
+| `folders[].github_account` | string | — | GitHub account for this folder (used by `push`) |
 
-Both `github_username` and `auto_git_init` are prompted interactively during first-run setup.
+`github_username` and `auto_git_init` are prompted interactively during first-run setup. Folders are managed via `projects folder add/remove`.
 
 ### Directory Structure per Project
 
@@ -456,6 +575,27 @@ cat ~/.projects/projects/my-project/PROJECT.md
 
 # Memory file for persistent context
 cat ~/.projects/projects/my-project/memory/MEMORY.md
+```
+
+### Create a project in a folder
+```sh
+projects create --title "Work API" --folder work --json
+```
+
+### List projects in a specific folder
+```sh
+projects ls --folder work --json
+```
+
+### Set up multi-account folders
+```sh
+projects folder add work --account work-org --json
+projects folder add personal --account my-gh-user --json
+```
+
+### Move a project to a folder
+```sh
+projects move my-project --folder work --json
 ```
 
 ---

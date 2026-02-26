@@ -8,12 +8,38 @@ import (
 	toml "github.com/pelletier/go-toml/v2"
 )
 
+// Folder represents a named project folder associated with a GitHub account.
+type Folder struct {
+	Name          string `toml:"name"`
+	GitHubAccount string `toml:"github_account"`
+}
+
 // Config holds all projectsCLI configuration fields.
 type Config struct {
-	ProjectsDir string `toml:"projects_dir,omitempty"`
-	Editor      string `toml:"editor,omitempty"`
-	GitHubUsername string `toml:"github_username,omitempty"`
-	AutoGitInit bool   `toml:"auto_git_init"`
+	ProjectsDir    string   `toml:"projects_dir,omitempty"`
+	Editor         string   `toml:"editor,omitempty"`
+	GitHubUsername string   `toml:"github_username,omitempty"`
+	AutoGitInit    bool     `toml:"auto_git_init"`
+	Folders        []Folder `toml:"folders,omitempty"`
+}
+
+// FolderByName returns the folder with the given name, or nil if not found.
+func (c Config) FolderByName(name string) *Folder {
+	for i := range c.Folders {
+		if c.Folders[i].Name == name {
+			return &c.Folders[i]
+		}
+	}
+	return nil
+}
+
+// FolderNames returns a slice of all configured folder names.
+func (c Config) FolderNames() []string {
+	names := make([]string, len(c.Folders))
+	for i, f := range c.Folders {
+		names[i] = f.Name
+	}
+	return names
 }
 
 // Defaults returns a Config with sensible default values.

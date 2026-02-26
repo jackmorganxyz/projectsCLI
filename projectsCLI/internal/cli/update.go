@@ -33,7 +33,7 @@ Use flags to update specific fields. The updated_at timestamp is automatically s
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
+			proj, err := findProject(runtime.Config, slug, runtime.Folder)
 			if err != nil {
 				return err
 			}

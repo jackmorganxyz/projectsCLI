@@ -1,6 +1,6 @@
 ---
 name: projects-cli
-description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, and delete projects from the terminal. Use this skill when the user wants to create a new project, organize existing projects, check project health, push to GitHub, or work with projects commands and project metadata.
+description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
 license: MIT
 compatibility: Requires projects binary installed. Optional gh CLI for GitHub integration.
 metadata:
@@ -28,6 +28,8 @@ Use projects when the user wants to:
 - List, view, or search across their projects
 - Check the health/status of projects (git state, remotes, uncommitted changes)
 - Push a project to GitHub (init, commit, create repo, push — all in one command)
+- Organize projects by GitHub account using folders
+- Move projects between folders
 - Load project metadata into shell variables for scripting
 - Delete a project
 - Edit project metadata or notes
@@ -64,12 +66,17 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 | `delete <slug>` | `rm` | Delete a project |
 | `status` | — | Health check across all projects |
 | `push <slug>` | — | Full git workflow: init, commit, GitHub repo, push |
+| `folder add <name>` | — | Create a folder tied to a GitHub account |
+| `folder list` | `folder ls` | List configured folders |
+| `folder remove <name>` | `folder rm` | Remove a folder from config |
+| `move <slug>` | — | Move a project to a different folder |
 
 ## Global Flags
 
 All commands support:
 - `--json` — Force JSON output (auto-enabled when piped)
 - `--config <path>` — Override config file path
+- `--folder <name>` — Target a specific folder (for multi-account setups)
 - `--version` — Print version
 
 ## Agent Integration Guidelines
@@ -178,9 +185,9 @@ projects push <slug> -m "commit message" --json
 - `--private` — Create private GitHub repo (default: `true`)
 - `--no-github` — Skip GitHub repo creation
 
-**Workflow**: git init (if needed) -> git add -A -> git commit -> if no remote: `gh repo create --source --push` (creates repo and pushes) / if remote exists: `git push -u origin <branch>`
+**Workflow**: git init (if needed) -> git add -A -> git commit -> if project is in a folder: `gh auth switch` to the folder's account -> if no remote: `gh repo create --source --push` / if remote exists: `git push -u origin <branch>`
 
-**Requires**: `gh` CLI installed and authenticated for GitHub repo creation.
+**Requires**: `gh` CLI installed and authenticated for GitHub repo creation. For folder-based projects, the associated account must be authenticated in `gh auth`.
 
 **JSON response**:
 ```json
@@ -261,6 +268,51 @@ git_remote: "https://github.com/user/my-project"
 Freeform markdown body.
 ```
 
+## Multi-Account Folders
+
+Folders let users organize projects by GitHub account. When pushing, the CLI automatically switches `gh auth` to the folder's account.
+
+### Set up folders
+```sh
+# Interactive — picks from gh auth accounts
+projects folder add work --json
+
+# Explicit account
+projects folder add personal --account my-gh-user --json
+```
+
+**JSON response**:
+```json
+{"status": "created", "folder": "work", "github_account": "work-org", "path": "/path/to/projects/work"}
+```
+
+### Create projects in a folder
+```sh
+projects create --title "Work API" --folder work --json
+```
+
+### Move existing projects
+```sh
+projects move my-project --folder work --json
+```
+
+**JSON response**:
+```json
+{"status": "moved", "slug": "my-project", "from": "/path/from", "to": "/path/to", "to_folder": "work"}
+```
+
+### List folders
+```sh
+projects folder list --json
+```
+
+### Remove a folder from config
+```sh
+projects folder remove work --json
+```
+
+Does not delete the directory or its projects.
+
 ## Configuration
 
 Config at `~/.projects/config.toml`:
@@ -270,9 +322,18 @@ projects_dir = "~/.projects/projects"
 editor = "vim"
 github_username = ""
 auto_git_init = true
+
+# Multi-account folders (managed via `projects folder add`)
+[[folders]]
+name = "work"
+github_account = "work-org"
+
+[[folders]]
+name = "personal"
+github_account = "my-gh-user"
 ```
 
-These values are set interactively during first-run setup. `github_username` and `auto_git_init` are prompted at install time.
+`github_username` and `auto_git_init` are prompted during first-run setup. Folders are managed via `projects folder add/remove`.
 
 ## Reading Project Files Directly
 
@@ -315,6 +376,19 @@ done
 ### Get a project's directory path
 ```sh
 projects view my-project --json | jq -r '.dir'
+```
+
+### Set up and use multi-account folders
+```sh
+projects folder add work --account work-org --json
+projects create --title "Work API" --folder work --json
+projects push work-api -m "Initial scaffold" --json
+# → Automatically pushes under the work-org GitHub account
+```
+
+### Move a project to a folder
+```sh
+projects move my-project --folder work --json
 ```
 
 For the full command specification with all flags, arguments, validation rules, and JSON schemas, see [references/REFERENCE.md](references/REFERENCE.md).

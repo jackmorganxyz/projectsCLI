@@ -4,10 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 
+	"github.com/jackmorganxyz/projectsCLI/internal/config"
+	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -86,4 +90,86 @@ func extractField(v any, path string) (any, error) {
 		}
 	}
 	return current, nil
+}
+
+// findProject locates a project by slug, searching the top-level projects directory
+// and all configured folders. If folderHint is non-empty, only that folder is searched.
+func findProject(cfg config.Config, slug string, folderHint string) (*project.Project, error) {
+	if folderHint != "" {
+		// Search only in the specified folder.
+		folderDir := filepath.Join(cfg.ProjectsDir, folderHint)
+		proj, err := project.FindProject(folderDir, slug)
+		if err != nil {
+			return nil, fmt.Errorf("project %q not found in folder %q", slug, folderHint)
+		}
+		proj.Folder = folderHint
+		return proj, nil
+	}
+
+	// Search top-level first.
+	proj, err := project.FindProject(cfg.ProjectsDir, slug)
+	if err == nil {
+		return proj, nil
+	}
+
+	// Search configured folders.
+	for _, f := range cfg.Folders {
+		folderDir := filepath.Join(cfg.ProjectsDir, f.Name)
+		proj, err := project.FindProject(folderDir, slug)
+		if err == nil {
+			proj.Folder = f.Name
+			return proj, nil
+		}
+	}
+
+	return nil, fmt.Errorf("project %q not found", slug)
+}
+
+// listAllProjects lists projects from the top-level and all configured folders.
+// If folderHint is non-empty, only that folder is listed.
+func listAllProjects(cfg config.Config, folderHint string) ([]*project.Project, error) {
+	if folderHint != "" {
+		folderDir := filepath.Join(cfg.ProjectsDir, folderHint)
+		projects, err := project.ListProjects(folderDir)
+		if err != nil {
+			return nil, err
+		}
+		for _, p := range projects {
+			p.Folder = folderHint
+		}
+		return projects, nil
+	}
+
+	// Collect top-level projects.
+	all, err := project.ListProjects(cfg.ProjectsDir)
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect projects from each configured folder.
+	for _, f := range cfg.Folders {
+		folderDir := filepath.Join(cfg.ProjectsDir, f.Name)
+		projects, err := project.ListProjects(folderDir)
+		if err != nil {
+			continue
+		}
+		for _, p := range projects {
+			p.Folder = f.Name
+			all = append(all, p)
+		}
+	}
+
+	sort.Slice(all, func(i, j int) bool {
+		return all[i].Meta.Slug < all[j].Meta.Slug
+	})
+
+	return all, nil
+}
+
+// folderForProject returns the folder config for a project, or nil if it's top-level.
+func folderForProject(cfg config.Config, proj *project.Project) *config.Folder {
+	if proj.Folder == "" {
+		return nil
+	}
+	return cfg.FolderByName(proj.Folder)
 }
