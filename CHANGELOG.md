@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **Interactive GitHub account picker** — `folder add` without `--account` shows a picker from `gh auth` accounts
 - **Folder column** in `list` and `status` output when folders are configured
 - **`folder` field** in JSON output for projects, status health, create, and move commands
+- **`update <slug>` command** — update project metadata (title, description, status, tags) without opening an editor
+- **`--field` flag** on `list`, `view`, and `status` — extract specific fields with dot-notation (e.g. `--field meta.title`) without needing `jq`
 - `open <slug>` command — opens the project folder in Finder (macOS), Explorer (Windows), or default file manager (Linux)
 - `Slugify()` helper — converts titles to valid slugs with unicode normalization
 - Tests for `Slugify` and `ValidateSlug`

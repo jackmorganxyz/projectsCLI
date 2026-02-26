@@ -331,6 +331,20 @@ projects push my-project --no-github        # skip GitHub repo creation
 
 Requires `gh` CLI for GitHub repo creation. If you already have a remote, it just pushes. If the project is in a folder with a GitHub account, `gh auth` is switched automatically before pushing.
 
+### `update <slug>`
+
+Update project metadata without opening an editor.
+
+```sh
+projects update my-project --title "New Name"
+projects update my-project --status paused
+projects update my-project --tags "go,api,v2" --description "Updated description"
+```
+
+**Flags:** `--title`, `--description`, `--status` (active/paused/archived), `--tags` (comma-separated)
+
+At least one flag is required. The `updated_at` timestamp is set automatically.
+
 ### `folder add <name>`
 
 Create a named folder tied to a GitHub account.

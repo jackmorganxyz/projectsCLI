@@ -68,7 +68,9 @@ None.
 
 ### Flags
 
-None (uses global `--json`).
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field from each project (e.g. `--field dir`, `--field meta.title`). Supports dot-notation. |
 
 ### JSON Output
 
@@ -115,7 +117,9 @@ Display project details.
 
 ### Flags
 
-None (uses global `--json`).
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field (e.g. `--field dir`, `--field meta.title`). Supports dot-notation. |
 
 ### JSON Output
 
@@ -288,7 +292,9 @@ None.
 
 ### Flags
 
-None (uses global `--json`).
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field from each health entry (e.g. `--field slug`, `--field status`). Supports dot-notation. |
 
 ### JSON Output
 
@@ -366,6 +372,46 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 - `gh` CLI must be installed and authenticated for GitHub repo creation
 - For folder-based projects, the folder's GitHub account must be authenticated in `gh auth`
 - Without `gh`, requires existing remote or `--no-github` flag
+
+---
+
+## `update <slug>`
+
+Update project metadata.
+
+### Arguments
+
+| Arg | Required | Type |
+|-----|----------|------|
+| `slug` | yes | string |
+
+### Flags
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--title` | string | `""` | New title |
+| `--description` | string | `""` | New description |
+| `--status` | string | `""` | New status (`active`, `paused`, `archived`) |
+| `--tags` | string | `""` | New tags (comma-separated, replaces existing tags) |
+
+At least one flag is required. If no flags are provided, the command returns an error.
+
+### JSON Output
+
+```json
+{
+  "status": "updated",
+  "slug": "my-project",
+  "updated_at": "2025-02-25T00:00:00Z"
+}
+```
+
+### Side Effects
+
+- Updates `PROJECT.md` YAML frontmatter with new values
+- Automatically sets `updated_at` to current UTC time
+- Regenerates `PROJECTS.md` registry
+- Validates status values (`active`, `paused`, `archived`)
 
 ---
 

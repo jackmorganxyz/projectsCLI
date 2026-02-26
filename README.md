@@ -56,6 +56,7 @@ This project has two READMEs because it serves two audiences:
 | `load <slug>` | Export project data for scripts (`--json`, `--export`, `--bash`) |
 | `delete <slug>` / `rm` | Delete a project (with appropriately dramatic confirmation prompts) |
 | `status` | Health check across all projects — your morning standup, minus the standing |
+| `update <slug>` | Update project metadata (title, description, status, tags) |
 | `push <slug>` | Full git workflow: init → commit → create repo → push. One command to rule them all |
 | `folder add/list/remove` | Manage folders for multi-account GitHub setups |
 | `move <slug>` | Move a project between folders |

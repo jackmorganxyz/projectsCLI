@@ -85,7 +85,11 @@ List all projects. Alias: `ls`.
 
 **Arguments:** None.
 
-**Flags:** None (uses global `--json`).
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field (e.g. `--field dir`, `--field meta.title`) |
 
 **JSON output:**
 
@@ -128,7 +132,11 @@ Display project details.
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:** None (uses global `--json`).
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field (e.g. `--field dir`, `--field meta.title`) |
 
 **JSON output:** Same as a single element from `list` output (Project object with `meta`, `body`, `dir`).
 
@@ -275,7 +283,11 @@ Health check across all projects.
 
 **Arguments:** None.
 
-**Flags:** None (uses global `--json`).
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--field` | string | `""` | Extract a specific field (e.g. `--field slug`, `--field status`) |
 
 **JSON output:**
 
@@ -340,6 +352,44 @@ Full git workflow: init, stage, commit, create GitHub repo, push.
 6. If remote exists: pushes to remote with `--set-upstream`
 
 **Requirements:** `gh` CLI must be installed and authenticated for GitHub repo creation.
+
+---
+
+### `update <slug>`
+
+Update project metadata.
+
+**Arguments:**
+
+| Arg | Required | Type |
+|-----|----------|------|
+| `slug` | yes | string |
+
+**Flags:**
+
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--title` | string | `""` | New title |
+| `--description` | string | `""` | New description |
+| `--status` | string | `""` | New status (`active`, `paused`, `archived`) |
+| `--tags` | string | `""` | New tags (comma-separated, replaces existing) |
+
+At least one flag is required.
+
+**JSON output:**
+
+```json
+{
+  "status": "updated",
+  "slug": "my-project",
+  "updated_at": "2025-02-25T00:00:00Z"
+}
+```
+
+**Side effects:**
+- Updates `PROJECT.md` frontmatter with new values
+- Sets `updated_at` to current time
+- Regenerates `PROJECTS.md` registry
 
 ---
 
@@ -566,6 +616,19 @@ projects delete my-project --force --json
 ### Create a project programmatically
 ```sh
 projects create --title "My API" --tags "go,api" --json
+```
+
+### Update project metadata
+```sh
+projects update my-project --status archived --json
+projects update my-project --title "New Name" --tags "go,v2" --json
+```
+
+### Extract specific fields without jq
+```sh
+projects ls --field dir                  # one directory path per line
+projects view my-project --field meta.title   # just the title
+projects status --field slug             # one slug per line
 ```
 
 ### Read project files directly

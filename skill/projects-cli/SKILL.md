@@ -32,6 +32,7 @@ Use projects when the user wants to:
 - Move projects between folders
 - Load project metadata into shell variables for scripting
 - Delete a project
+- Update project metadata (title, status, tags, description) programmatically
 - Edit project metadata or notes
 - Open a project folder in the OS file manager
 
@@ -65,6 +66,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 | `load <slug>` | — | Export project data (JSON, shell vars) |
 | `delete <slug>` | `rm` | Delete a project |
 | `status` | — | Health check across all projects |
+| `update <slug>` | — | Update project metadata (title, description, status, tags) |
 | `push <slug>` | — | Full git workflow: init, commit, GitHub repo, push |
 | `folder add <name>` | — | Create a folder tied to a GitHub account |
 | `folder list` | `folder ls` | List configured folders |
@@ -193,6 +195,50 @@ projects push <slug> -m "commit message" --json
 ```json
 {"status": "pushed", "slug": "my-api", "remote": "https://github.com/user/my-api"}
 ```
+
+## Updating Project Metadata
+
+```sh
+projects update <slug> [flags] --json
+```
+
+**Flags**:
+- `--title <string>` — New title
+- `--description <string>` — New description
+- `--status <string>` — `active`, `paused`, or `archived`
+- `--tags <string>` — Comma-separated tags (replaces existing)
+
+At least one flag is required. The `updated_at` timestamp is set automatically.
+
+**Examples**:
+```sh
+projects update my-api --status archived --json
+projects update my-api --title "My API v2" --tags "go,api,v2" --json
+```
+
+**JSON response**:
+```json
+{"status": "updated", "slug": "my-api", "updated_at": "2025-02-25T00:00:00Z"}
+```
+
+**Side effects**: Updates `PROJECT.md` frontmatter and regenerates `PROJECTS.md` registry.
+
+## Extracting Specific Fields
+
+The `list`, `view`, and `status` commands support `--field` for extracting a specific field without needing `jq`:
+
+```sh
+# Get all project directories
+projects ls --field dir
+
+# Get a single project's title
+projects view my-api --field meta.title
+
+# Get all slugs from status
+projects status --field slug
+```
+
+Supports dot-notation for nested fields (e.g. `meta.title`, `meta.slug`, `meta.status`).
 
 ## Loading Project Data
 
