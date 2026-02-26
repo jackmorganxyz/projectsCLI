@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
 )
@@ -25,7 +24,7 @@ func NewViewCmd() *cobra.Command {
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
+			proj, err := findProject(runtime.Config, slug, runtime.Folder)
 			if err != nil {
 				return err
 			}

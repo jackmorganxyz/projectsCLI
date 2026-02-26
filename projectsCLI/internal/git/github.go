@@ -35,3 +35,8 @@ func HasGHCLI() bool {
 	_, err := output(".", "gh", "version")
 	return err == nil
 }
+
+// SwitchAuth switches the active GitHub CLI account to the given user.
+func SwitchAuth(account string) error {
+	return run(".", "gh", "auth", "switch", "--user", account)
+}

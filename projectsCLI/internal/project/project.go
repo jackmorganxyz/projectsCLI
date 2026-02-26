@@ -25,9 +25,10 @@ type ProjectMeta struct {
 
 // Project is a fully loaded project with its metadata, body, and filesystem path.
 type Project struct {
-	Meta ProjectMeta `json:"meta"`
-	Body string      `json:"body,omitempty"`
-	Dir  string      `json:"dir"`
+	Meta   ProjectMeta `json:"meta"`
+	Body   string      `json:"body,omitempty"`
+	Dir    string      `json:"dir"`
+	Folder string      `json:"folder,omitempty"`
 }
 
 // ProjectFilePath returns the PROJECT.md path for a project directory.

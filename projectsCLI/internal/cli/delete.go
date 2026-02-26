@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
@@ -27,7 +26,7 @@ func NewDeleteCmd() *cobra.Command {
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
+			proj, err := findProject(runtime.Config, slug, runtime.Folder)
 			if err != nil {
 				return err
 			}
@@ -45,8 +44,7 @@ func NewDeleteCmd() *cobra.Command {
 				return fmt.Errorf("use --force to delete without confirmation in non-interactive mode")
 			}
 
-			dir := filepath.Join(runtime.Config.ProjectsDir, proj.Meta.Slug)
-			if err := os.RemoveAll(dir); err != nil {
+			if err := os.RemoveAll(proj.Dir); err != nil {
 				return fmt.Errorf("remove project directory: %w", err)
 			}
 

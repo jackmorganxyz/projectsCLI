@@ -13,6 +13,7 @@ type RuntimeContext struct {
 	Config     config.Config
 	ConfigPath string
 	JSON       bool
+	Folder     string // optional folder filter for multi-account setups
 }
 
 // WithRuntimeContext attaches runtime state to a context.

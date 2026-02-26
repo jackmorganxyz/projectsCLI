@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +37,7 @@ func NewEditCmd() *cobra.Command {
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(rt.Config.ProjectsDir, slug)
+			proj, err := findProject(rt.Config, slug, rt.Folder)
 			if err != nil {
 				return err
 			}

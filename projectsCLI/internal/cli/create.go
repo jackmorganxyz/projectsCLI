@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/jackmorganxyz/projectsCLI/internal/git"
@@ -17,6 +18,7 @@ func NewCreateCmd() *cobra.Command {
 		description string
 		tags        []string
 		status      string
+		folder      string
 	)
 
 	cmd := &cobra.Command{
@@ -59,7 +61,22 @@ If slug is omitted, it is generated from --title.`,
 				meta.Status = status
 			}
 
-			dir, err := project.Scaffold(runtime.Config.ProjectsDir, meta)
+			// Use --folder flag or fall back to root --folder persistent flag.
+			targetFolder := folder
+			if targetFolder == "" {
+				targetFolder = runtime.Folder
+			}
+
+			// Determine the target directory.
+			projectsDir := runtime.Config.ProjectsDir
+			if targetFolder != "" {
+				if runtime.Config.FolderByName(targetFolder) == nil {
+					return fmt.Errorf("folder %q not configured; run 'projects folder add %s --account <gh-user>' first", targetFolder, targetFolder)
+				}
+				projectsDir = filepath.Join(runtime.Config.ProjectsDir, targetFolder)
+			}
+
+			dir, err := project.Scaffold(projectsDir, meta)
 			if err != nil {
 				return err
 			}
@@ -78,17 +95,24 @@ If slug is omitted, it is generated from --title.`,
 			_ = project.WriteRegistry(runtime.Config.ProjectsDir)
 
 			if tui.IsJSON() {
-				return writeJSON(cmd.OutOrStdout(), map[string]any{
+				result := map[string]any{
 					"status":     "created",
 					"slug":       slug,
 					"dir":        dir,
 					"created_at": meta.CreatedAt,
-				})
+				}
+				if targetFolder != "" {
+					result["folder"] = targetFolder
+				}
+				return writeJSON(cmd.OutOrStdout(), result)
 			}
 
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %q — %s", slug, tui.RandomCreateCheer())))
 			fmt.Fprintln(w, tui.FormatField("Directory", dir))
+			if targetFolder != "" {
+				fmt.Fprintln(w, tui.FormatField("Folder", targetFolder))
+			}
 			fmt.Fprintln(w, tui.FormatField("Created", time.Now().Format("2006-01-02")))
 			if tip := tui.MaybeTip(); tip != "" {
 				fmt.Fprintln(w)
@@ -102,6 +126,7 @@ If slug is omitted, it is generated from --title.`,
 	cmd.Flags().StringVar(&description, "description", "", "project description")
 	cmd.Flags().StringSliceVar(&tags, "tags", nil, "project tags (comma-separated)")
 	cmd.Flags().StringVar(&status, "status", "active", "project status")
+	cmd.Flags().StringVar(&folder, "folder", "", "create project in a named folder (for multi-account setups)")
 
 	return cmd
 }

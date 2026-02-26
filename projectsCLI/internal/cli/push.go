@@ -29,7 +29,7 @@ func NewPushCmd() *cobra.Command {
 			}
 
 			slug := args[0]
-			proj, err := project.FindProject(runtime.Config.ProjectsDir, slug)
+			proj, err := findProject(runtime.Config, slug, runtime.Folder)
 			if err != nil {
 				return err
 			}
@@ -71,7 +71,17 @@ func NewPushCmd() *cobra.Command {
 					return fmt.Errorf("no remote configured and gh CLI not available; add a remote manually or install gh")
 				}
 
+				// Determine which GitHub account to use.
 				org := runtime.Config.GitHubUsername
+				if f := folderForProject(runtime.Config, proj); f != nil && f.GitHubAccount != "" {
+					// Switch gh auth to the folder's account before creating the repo.
+					fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted(fmt.Sprintf("Switching to GitHub account %q...", f.GitHubAccount)))
+					if err := git.SwitchAuth(f.GitHubAccount); err != nil {
+						return fmt.Errorf("switch GitHub account to %s: %w", f.GitHubAccount, err)
+					}
+					org = f.GitHubAccount
+				}
+
 				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Creating GitHub repo... your code deserves a home."))
 				repoURL, err := git.CreateRepo(dir, slug, org, private)
 				if err != nil {
@@ -86,6 +96,13 @@ func NewPushCmd() *cobra.Command {
 
 				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage(fmt.Sprintf("Repository created: %s", repoURL)))
 			} else if git.HasRemote(dir) {
+				// Switch gh auth if project is in a folder with a GitHub account.
+				if f := folderForProject(runtime.Config, proj); f != nil && f.GitHubAccount != "" {
+					if err := git.SwitchAuth(f.GitHubAccount); err != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not switch GitHub account: %v\n", err)
+					}
+				}
+
 				// Push to existing remote.
 				branch, _ := git.CurrentBranch(dir)
 				if branch == "" {
