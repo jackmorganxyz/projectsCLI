@@ -9,11 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ### Changed
 - **Binary renamed from `projectsCLI` to `projects`** — all commands are now `projects <command>`
 - **`create` slug is now optional** — provide `--title` and the slug is auto-generated (e.g. `--title "My Cool Project"` → `my-cool-project`)
-- **`edit` now opens PROJECT.md in the OS default application** (TextEdit on macOS, Notepad on Windows, xdg-open on Linux) instead of `$EDITOR`/vim
+- **`edit` now has an interactive file browser + editor picker** — browse any file in the project, choose from installed editors (Cursor, VS Code, Vim, etc.), choice is saved to config. Use `--editor` flag to override. Falls back to PROJECT.md + saved editor in non-interactive mode.
 - **`github_org` config field renamed to `github_username`** in `~/.projects/config.toml`
 - First-run setup now interactively prompts for **GitHub username** and **auto-git-init** preference
 
 ### Added
+- **Interactive editor detection** — `edit` auto-detects installed GUI editors (macOS via Spotlight, Linux/Windows via PATH) and terminal editors (nvim, vim, nano, emacs, micro, hx)
+- **`--editor` flag** on `edit` command — bypass the editor picker for a single invocation
+- **`editor` package** (`internal/editor/`) — reusable cross-platform editor detection and launch logic
 - **Multi-account folders** — organize projects by GitHub account with `folder add`, `folder list`, `folder remove`
 - **`move <slug>` command** — move projects between folders or back to top level
 - **`--folder` global flag** — scope any command to a specific folder

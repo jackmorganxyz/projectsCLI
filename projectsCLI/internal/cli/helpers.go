@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"unicode"
@@ -14,6 +16,20 @@ import (
 	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"golang.org/x/text/unicode/norm"
 )
+
+// openFile opens a file or directory with the OS default application.
+func openFile(path string) error {
+	var cmd string
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = "open"
+	case "windows":
+		cmd = "start"
+	default: // linux, freebsd, etc.
+		cmd = "xdg-open"
+	}
+	return exec.Command(cmd, path).Start()
+}
 
 var slugRegexp = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
 

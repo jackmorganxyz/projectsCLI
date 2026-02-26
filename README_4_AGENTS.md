@@ -210,7 +210,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 
 ### `edit <slug>`
 
-Open project's `PROJECT.md` in the OS default application.
+Interactively browse project files and open the selected file in a chosen editor.
 
 **Arguments:**
 
@@ -218,11 +218,22 @@ Open project's `PROJECT.md` in the OS default application.
 |-----|----------|------|
 | `slug` | yes | string |
 
-**Flags:** None.
+**Flags:**
 
-**Side effects:** Opens `PROJECT.md` with the OS default application (TextEdit on macOS, Notepad on Windows, xdg-open on Linux). The CLI returns immediately.
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--editor` | string | `""` | Editor command to use (bypasses interactive picker) |
 
-**Note:** This command is interactive-only. Not suitable for non-interactive agent use — use direct file reads/writes instead.
+**Behavior:**
+- **Interactive**: Shows a file browser to navigate the project directory, then opens the selected file in the user's preferred editor. On first run, prompts the user to pick from detected installed editors (Cursor, VS Code, Vim, etc.) and saves the choice to `config.editor`.
+- **Non-interactive**: Opens `PROJECT.md` with the saved `config.editor` (defaults to `$EDITOR` or `vim`).
+- **`--editor` flag**: Overrides the saved editor for a single invocation without re-saving.
+
+**Editor detection:** Auto-detects installed GUI editors (macOS via Spotlight, Linux/Windows via PATH) and terminal editors (nvim, vim, nano, emacs, micro, hx).
+
+**Side effects:** Saves the editor choice to `config.editor` on first interactive pick. Terminal editors run in the foreground (blocking); GUI editors launch in the background.
+
+**Note:** For non-interactive agent use, prefer direct file reads/writes instead.
 
 ---
 
@@ -546,7 +557,7 @@ github_account = "my-gh-user"
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
-| `editor` | string | `$EDITOR` or `"vim"` | Editor binary name |
+| `editor` | string | `$EDITOR` or `"vim"` | Editor command for `edit` (auto-saved on first interactive pick) |
 | `github_username` | string | `""` | Default GitHub username for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
 | `folders` | array | `[]` | Named folders with associated GitHub accounts |

@@ -51,7 +51,7 @@ This project has two READMEs because it serves two audiences:
 | `create [slug]` | Scaffold a new project — slug auto-generated from `--title` if omitted |
 | `list` / `ls` | Dashboard of all projects (gorgeous TUI or clean JSON) |
 | `view <slug>` | Project details in a scrollable, styled view |
-| `edit <slug>` | Open PROJECT.md in your OS default application |
+| `edit <slug>` | Browse project files and open in your preferred editor |
 | `open <slug>` | Open the project folder in Finder / Explorer / file manager |
 | `load <slug>` | Export project data for scripts (`--json`, `--export`, `--bash`) |
 | `delete <slug>` / `rm` | Delete a project (with appropriately dramatic confirmation prompts) |
@@ -84,7 +84,7 @@ cd projectsCLI && make build && make install
 ```toml
 # ~/.projects/config.toml
 projects_dir = "~/.projects/projects"
-editor = "nvim"
+editor = "cursor"                 # saved automatically on first `edit`
 github_username = "my-username"
 auto_git_init = true
 

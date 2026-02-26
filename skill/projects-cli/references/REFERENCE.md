@@ -198,7 +198,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"  # only if remote is set
 
 ## `edit <slug>`
 
-Open project's `PROJECT.md` in the OS default application (e.g. TextEdit on macOS).
+Interactively browse project files and open the selected file in a chosen editor.
 
 ### Arguments
 
@@ -208,16 +208,36 @@ Open project's `PROJECT.md` in the OS default application (e.g. TextEdit on macO
 
 ### Flags
 
-None.
+| Flag | Type | Default | Description |
+|------|------|---------|-------------|
+| `--editor` | string | `""` | Editor command to use (bypasses interactive picker) |
+
+### Behavior
+
+- **Interactive**: Presents a file browser to navigate the project directory (folders first, then text files, hidden files excluded). The user selects a file, then selects an editor from auto-detected installed editors. The editor choice is saved to `config.editor` for future invocations.
+- **Non-interactive**: Opens `PROJECT.md` with the saved `config.editor` (defaults to `$EDITOR` or `vim`).
+- **`--editor` flag**: Uses the specified editor command without prompting and without saving to config.
+
+### Editor Detection
+
+Auto-detects installed editors by platform:
+- **macOS**: GUI apps via Spotlight (`mdfind`) — Cursor, VS Code, Sublime Text, BBEdit, Zed, TextEdit. CLI editors via `PATH` — nvim, vim, nano, emacs, micro, hx.
+- **Linux**: GUI editors via `PATH` — code, cursor, subl, zed, kate, gedit, gnome-text-editor. Same CLI editors.
+- **Windows**: GUI editors via `PATH` — code, cursor, subl, notepad++, notepad. Same CLI editors.
+
+### File Browser
+
+- Shows folders first (sorted), then text files (sorted)
+- Filters to text-based extensions (`.md`, `.go`, `.js`, `.py`, `.json`, `.yaml`, `.toml`, `.sh`, etc.) plus extensionless files under 1MB
+- Hidden files/directories (`.git`, `.DS_Store`, etc.) are excluded
+- Navigating into a folder updates the listing; a "← Back" option navigates up
+- Ctrl+C / Esc cancels and returns without opening anything
 
 ### Side Effects
 
-Opens `PROJECT.md` with the OS default application for `.md` files:
-- **macOS**: `open` (typically TextEdit)
-- **Windows**: `start` (typically Notepad)
-- **Linux**: `xdg-open` (user's configured default)
-
-The CLI returns immediately after launching the application.
+- Saves the editor choice to `config.editor` on first interactive pick
+- Terminal editors (vim, nano, etc.) run in the foreground (blocking)
+- GUI editors (VS Code, Cursor, etc.) launch in the background
 
 ---
 
@@ -574,7 +594,7 @@ github_account = "my-gh-user"
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `projects_dir` | string | `~/.projects/projects` | Where projects are stored |
-| `editor` | string | `$EDITOR` or `"vim"` | Editor binary name |
+| `editor` | string | `$EDITOR` or `"vim"` | Editor command for `edit` (auto-saved on first interactive pick) |
 | `github_username` | string | `""` | Default GitHub username for `push` repo creation |
 | `auto_git_init` | bool | `true` | Auto git init on project create |
 | `folders` | array | `[]` | Named folders with associated GitHub accounts |

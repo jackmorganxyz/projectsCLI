@@ -129,7 +129,27 @@ In your terminal, this opens a scrollable view with all your project metadata an
 projects edit my-api
 ```
 
-Opens `PROJECT.md` in your OS default application (TextEdit on macOS, Notepad on Windows, etc.). The frontmatter is YAML — edit the title, status, tags, description. The body is freeform markdown.
+This launches an interactive file browser — navigate folders, pick any text file in your project. On first run you'll also pick your preferred editor (Cursor, VS Code, Vim, etc.) from those installed on your machine. The choice is saved so you won't be asked again.
+
+```
+  Choose a file
+  > 📁 code/
+    📁 docs/
+    📄 PROJECT.md
+
+  Choose an editor
+  > Cursor
+    VS Code
+    Vim  (terminal)
+```
+
+Want to skip the editor picker? Use `--editor`:
+
+```sh
+projects edit my-api --editor vim
+```
+
+In non-interactive mode (piped stdin/stdout), `edit` defaults to opening `PROJECT.md` with your saved editor.
 
 ### 5. Open the project folder
 
@@ -254,13 +274,16 @@ projects view my-project --json   # full project JSON
 
 ### `edit <slug>`
 
-Open `PROJECT.md` in your OS default application.
+Browse and edit any file in a project.
 
 ```sh
-projects edit my-project
+projects edit my-project                # interactive file browser + editor picker
+projects edit my-project --editor vim   # skip editor picker, use vim
 ```
 
-Opens in TextEdit (macOS), Notepad (Windows), or your default `.md` handler (Linux).
+Interactively browse files in the project directory, then open the selected file in your preferred editor. The editor choice is auto-detected from installed apps (Cursor, VS Code, Sublime Text, Vim, etc.) and saved to config on first pick.
+
+**Flags:** `--editor` (editor command to use, bypasses picker)
 
 ### `open <slug>`
 
@@ -437,8 +460,8 @@ Config lives at `~/.projects/config.toml`:
 # Where your projects live
 projects_dir = "~/.projects/projects"
 
-# Which editor for legacy use
-editor = "nvim"
+# Editor for `edit` command (auto-saved on first pick)
+editor = "cursor"
 
 # GitHub username for repo creation (prompted during first-run setup)
 github_username = "my-username"

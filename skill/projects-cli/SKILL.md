@@ -61,7 +61,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 | `create [slug]` | — | Scaffold a new project (slug auto-generated from `--title` if omitted) |
 | `list` | `ls` | List all projects (TUI or JSON) |
 | `view <slug>` | — | View project details |
-| `edit <slug>` | — | Open PROJECT.md in OS default application |
+| `edit <slug>` | — | Browse project files and open in preferred editor (`--editor` to override) |
 | `open <slug>` | — | Open project folder in OS file manager (Finder, Explorer, etc.) |
 | `load <slug>` | — | Export project data (JSON, shell vars) |
 | `delete <slug>` | `rm` | Delete a project |
@@ -270,6 +270,21 @@ projects delete <slug> --force --json
 
 **This permanently removes the entire project directory.**
 
+## Editing a Project File
+
+```sh
+projects edit <slug>                # interactive file browser + editor picker
+projects edit <slug> --editor vim   # skip editor picker
+```
+
+Interactively browse project files and open the selected file in the user's preferred editor. On first run, auto-detects installed editors (Cursor, VS Code, Vim, Nano, etc.) and prompts the user to pick one. The choice is saved to `config.editor`.
+
+In non-interactive mode, defaults to opening `PROJECT.md` with the saved editor.
+
+**Flags**: `--editor <command>` — override saved editor for a single invocation.
+
+**Note:** This command is interactive — for agents, use direct file reads/writes on project files instead.
+
 ## Opening a Project Folder
 
 ```sh
@@ -365,7 +380,7 @@ Config at `~/.projects/config.toml`:
 
 ```toml
 projects_dir = "~/.projects/projects"
-editor = "vim"
+editor = "cursor"    # auto-saved on first `edit` pick
 github_username = ""
 auto_git_init = true
 
