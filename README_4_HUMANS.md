@@ -101,6 +101,8 @@ Behind the scenes, this created a whole scaffold for you (you're welcome):
 
 Git was automatically initialized and the scaffold was committed.
 
+**Got Claude Code or Codex CLI installed?** After scaffolding, you'll be asked if you want to spawn an AI agent to fill out the template files. Give it a prompt like *"Build a REST API service in Go with user authentication"* and it'll get to work in your new project directory. Or just skip it — your call.
+
 ### 2. See all your projects
 
 ```sh
@@ -108,6 +110,8 @@ projects ls
 ```
 
 This launches an interactive dashboard in your terminal. Navigate with `j`/`k` (or arrow keys), press `Enter` to select, `q` to quit. You'll see a table with your project slugs, titles, statuses, and creation dates — all styled in a violet-and-emerald color palette that frankly goes unreasonably hard for a CLI tool.
+
+**Select a project and do stuff.** When you press Enter on a project, you'll get a dropdown of actions — view, edit, open, status, push, update, move, or delete. Pick one and it runs. No more memorizing slugs and typing separate commands.
 
 No projects yet? You'll get a gentle nudge:
 
@@ -129,21 +133,25 @@ In your terminal, this opens a scrollable view with all your project metadata an
 projects edit my-api
 ```
 
-This launches an interactive file browser — navigate folders, pick any text file in your project. On first run you'll also pick your preferred editor (Cursor, VS Code, Vim, etc.) from those installed on your machine. The choice is saved so you won't be asked again.
+This launches an interactive file browser — navigate folders, pick any text file in your project. Then choose how you want to edit it:
 
 ```
-  Choose a file
-  > 📁 code/
-    📁 docs/
-    📄 PROJECT.md
-
-  Choose an editor
-  > Cursor
-    VS Code
-    Vim  (terminal)
+  How would you like to edit this file?
+  > Manual edit (open in an editor)
+    Agent edit (AI-assisted editing)
 ```
 
-Want to skip the editor picker? Use `--editor`:
+**Manual edit** opens the file in your preferred editor. On first run you'll pick from installed editors (Cursor, VS Code, TextEdit, Vim, etc.) — now clearly labeled as `(terminal)` or `(GUI)` so you know what you're getting. The choice is saved so you won't be asked again. Want to re-pick? Use `--editor-picker`.
+
+**Agent edit** spawns Claude Code or Codex CLI to edit the file for you. Describe what you want changed, and the AI gets to work. This option only appears if you have `claude` or `codex` installed.
+
+```
+  Describe the changes you want
+  The agent will edit: TODO.md
+  > Add tasks for building the authentication module
+```
+
+Want to skip all the pickers? Use `--editor`:
 
 ```sh
 projects edit my-api --editor vim
@@ -253,15 +261,19 @@ projects create my-project --status paused                                     #
 
 **Flags:** `--title`, `--description`, `--tags` (comma-separated), `--status` (active/paused/archived)
 
+After scaffolding, if Claude Code or Codex CLI is installed, you'll be asked if you want to spawn an AI agent to fill out the template files. Give it a prompt and let it do the heavy lifting.
+
 ### `list` (alias: `ls`)
 
 See all your projects. Feel the satisfaction.
 
 ```sh
-projects ls           # interactive TUI dashboard
+projects ls           # interactive TUI dashboard — select a project to act on it
 projects ls --json    # JSON array of all projects
 projects ls | jq '.'  # auto-switches to JSON when piped
 ```
+
+In the dashboard, press Enter on a project to get a dropdown of actions (view, edit, open, etc.).
 
 ### `view <slug>`
 
@@ -274,16 +286,17 @@ projects view my-project --json   # full project JSON
 
 ### `edit <slug>`
 
-Browse and edit any file in a project.
+Browse and edit any file in a project — manually or with an AI agent.
 
 ```sh
-projects edit my-project                # interactive file browser + editor picker
-projects edit my-project --editor vim   # skip editor picker, use vim
+projects edit my-project                    # file browser + edit mode picker
+projects edit my-project --editor vim       # skip all pickers, use vim
+projects edit my-project --editor-picker    # force re-show the editor picker
 ```
 
-Interactively browse files in the project directory, then open the selected file in your preferred editor. The editor choice is auto-detected from installed apps (Cursor, VS Code, Sublime Text, Vim, etc.) and saved to config on first pick.
+Interactively browse files, then choose "Manual edit" (opens in your editor) or "Agent edit" (spawns Claude Code or Codex CLI with a prompt). The editor choice is auto-detected from installed apps — now labeled as `(terminal)` or `(GUI)` — and saved to config on first pick.
 
-**Flags:** `--editor` (editor command to use, bypasses picker)
+**Flags:** `--editor` (editor command, bypasses all pickers), `--editor-picker` (force re-pick editor)
 
 ### `open <slug>`
 

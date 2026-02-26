@@ -56,6 +56,24 @@ func HasCLI(name string) bool {
 	return err == nil
 }
 
+// IsInstalled reports whether an editor is available on the system.
+// For CLI editors this checks PATH. For GUI editors on macOS it also
+// checks via Spotlight (mdfind) since GUI apps aren't on PATH.
+func IsInstalled(command string) bool {
+	if HasCLI(command) {
+		return true
+	}
+	if runtime.GOOS == "darwin" {
+		for _, app := range guiAppsDarwin {
+			if app.Command == command {
+				out, err := exec.Command("mdfind", "kMDItemCFBundleIdentifier", "=", app.BundleID).Output()
+				return err == nil && len(strings.TrimSpace(string(out))) > 0
+			}
+		}
+	}
+	return false
+}
+
 // --- macOS ---
 
 // guiAppsDarwin maps macOS .app bundle identifiers to editor metadata.

@@ -76,6 +76,7 @@ If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool 
 - Writes template files: `USAGE.md`, `memory/MEMORY.md`, `context/CONTEXT.md`, `tasks/TODO.md`, `docs/README.md`, `.gitignore`
 - If `auto_git_init = true`: runs `git init`, `git add -A`, `git commit`
 - Regenerates `PROJECTS.md` registry
+- In interactive mode, if an AI agent (`claude` or `codex`) is installed, prompts the user to optionally spawn an agent to fill out the scaffold
 
 ---
 
@@ -116,7 +117,7 @@ List all projects. Alias: `ls`.
 `folder` is included when the project lives in a configured folder.
 
 **Behavior:**
-- Interactive TTY: launches TUI dashboard
+- Interactive TTY: launches TUI dashboard. Selecting a project (Enter) shows a command picker (view, edit, open, status, push, update, move, delete) and auto-runs the chosen command.
 - Non-TTY or `--json`: outputs JSON array
 - When folders are configured, `list` and `status` include a Folder column in table output
 
@@ -210,7 +211,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"
 
 ### `edit <slug>`
 
-Interactively browse project files and open the selected file in a chosen editor.
+Interactively browse project files, then choose manual edit (in an editor) or agent edit (AI-assisted via prompt).
 
 **Arguments:**
 
@@ -222,16 +223,22 @@ Interactively browse project files and open the selected file in a chosen editor
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--editor` | string | `""` | Editor command to use (bypasses interactive picker) |
+| `--editor` | string | `""` | Editor command to use (bypasses edit mode and editor pickers) |
+| `--editor-picker` | bool | `false` | Force re-showing the editor selection prompt (ignore saved preference) |
 
 **Behavior:**
-- **Interactive**: Shows a file browser to navigate the project directory, then opens the selected file in the user's preferred editor. On first run, prompts the user to pick from detected installed editors (Cursor, VS Code, Vim, etc.) and saves the choice to `config.editor`.
+- **Interactive**: Shows a file browser, then an edit mode picker:
+  - **Manual edit**: Opens in the user's preferred editor. On first run (or with `--editor-picker`), prompts the user to pick from detected installed editors labeled as `(terminal)` or `(GUI)`. Saves the choice to `config.editor`.
+  - **Agent edit**: Spawns an AI agent (Claude Code or Codex CLI) with a user-provided text prompt. Only shown when at least one agent is installed.
 - **Non-interactive**: Opens `PROJECT.md` with the saved `config.editor` (defaults to `$EDITOR` or `vim`).
-- **`--editor` flag**: Overrides the saved editor for a single invocation without re-saving.
+- **`--editor` flag**: Overrides the saved editor for a single invocation. Skips both the edit mode and editor pickers.
+- **`--editor-picker` flag**: Forces the editor selection prompt even if a preference is saved.
 
-**Editor detection:** Auto-detects installed GUI editors (macOS via Spotlight, Linux/Windows via PATH) and terminal editors (nvim, vim, nano, emacs, micro, hx).
+**Editor detection:** Auto-detects installed GUI editors (macOS via Spotlight, Linux/Windows via PATH) and terminal editors (nvim, vim, nano, emacs, micro, hx). GUI editors like TextEdit are properly recalled from saved preferences using Spotlight-based detection.
 
-**Side effects:** Saves the editor choice to `config.editor` on first interactive pick. Terminal editors run in the foreground (blocking); GUI editors launch in the background.
+**Agent detection:** Detects Claude Code (`claude`) and Codex CLI (`codex`) via PATH.
+
+**Side effects:** Saves the editor choice to `config.editor` on first interactive pick. Terminal editors run in the foreground (blocking); GUI editors launch in the background. Agent edit spawns an AI agent in the foreground (blocking).
 
 **Note:** For non-interactive agent use, prefer direct file reads/writes instead.
 

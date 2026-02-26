@@ -3,8 +3,12 @@ package cli
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/jackmorganxyz/projectsCLI/internal/agent"
 	"github.com/jackmorganxyz/projectsCLI/internal/git"
 	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
@@ -111,6 +115,15 @@ If slug is omitted, it is generated from --title.`,
 				fmt.Fprintln(w)
 				fmt.Fprintln(w, tip)
 			}
+
+			// Offer to spawn an AI agent to fill out the scaffold.
+			if tui.IsInteractive() && agent.HasAny() {
+				fmt.Fprintln(w)
+				if err := offerAgentSpawn(cmd, dir, slug, description); err != nil {
+					return err
+				}
+			}
+
 			return nil
 		},
 	}
@@ -121,4 +134,76 @@ If slug is omitted, it is generated from --title.`,
 	cmd.Flags().StringVar(&status, "status", "active", "project status")
 
 	return cmd
+}
+
+// offerAgentSpawn prompts the user to optionally launch an AI agent in the
+// newly scaffolded project directory.
+func offerAgentSpawn(cmd *cobra.Command, dir, slug, description string) error {
+	agents := agent.Detect()
+	if len(agents) == 0 {
+		return nil
+	}
+
+	options := []huh.Option[string]{
+		huh.NewOption("Skip — I'll work on it myself", "skip"),
+	}
+	for _, a := range agents {
+		options = append(options, huh.NewOption(fmt.Sprintf("Launch %s", a.Name), a.Command))
+	}
+
+	var selected string
+	theme := huh.ThemeBase()
+	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
+	theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
+
+	err := huh.NewSelect[string]().
+		Title("Spawn an AI agent to fill out the project scaffold?").
+		Options(options...).
+		Value(&selected).
+		WithTheme(theme).
+		Run()
+
+	if err != nil || selected == "skip" {
+		return nil
+	}
+
+	var chosenAgent *agent.Agent
+	for _, a := range agents {
+		if a.Command == selected {
+			chosenAgent = &a
+			break
+		}
+	}
+	if chosenAgent == nil {
+		return nil
+	}
+
+	var userPrompt string
+	err = huh.NewText().
+		Title("What should the agent work on?").
+		Description("Describe what you want the agent to do with the scaffolded files").
+		Value(&userPrompt).
+		WithTheme(theme).
+		Run()
+
+	if err != nil || strings.TrimSpace(userPrompt) == "" {
+		return nil
+	}
+
+	fullPrompt := fmt.Sprintf(
+		"You are working in a new project scaffold. "+
+			"The project is called %q. Description: %s. "+
+			"Read USAGE.md to understand the project structure, then: %s",
+		slug, description, userPrompt,
+	)
+
+	w := cmd.OutOrStdout()
+	fmt.Fprintln(w, tui.Muted(fmt.Sprintf("Launching %s...", chosenAgent.Name)))
+
+	if err := agent.Spawn(*chosenAgent, dir, fullPrompt); err != nil {
+		fmt.Fprintln(cmd.ErrOrStderr(), tui.WarningMessage(
+			fmt.Sprintf("%s exited with error: %v", chosenAgent.Name, err)))
+	}
+
+	return nil
 }

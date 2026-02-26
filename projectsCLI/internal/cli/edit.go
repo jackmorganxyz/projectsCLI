@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jackmorganxyz/projectsCLI/internal/agent"
 	"github.com/jackmorganxyz/projectsCLI/internal/config"
 	"github.com/jackmorganxyz/projectsCLI/internal/editor"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
@@ -33,17 +34,19 @@ const backOption = "← Back"
 // NewEditCmd opens a project file in a chosen editor.
 func NewEditCmd() *cobra.Command {
 	var editorFlag string
+	var editorPicker bool
 
 	cmd := &cobra.Command{
 		Use:   "edit <slug>",
 		Short: "Browse and edit a project file",
 		Long: `Interactively browse files in a project directory and open the selected
-file in your preferred editor.
+file in your preferred editor, or spawn an AI agent to edit it for you.
 
 On first run you'll be prompted to pick an editor from those installed on
 your system. The choice is saved to config so subsequent runs open directly.
 
 Use --editor to override the saved editor for a single invocation.
+Use --editor-picker to re-show the editor selection prompt.
 In non-interactive mode (piped stdin/stdout) the command defaults to
 opening PROJECT.md with the saved editor.`,
 		Args: cobra.ExactArgs(1),
@@ -73,8 +76,21 @@ opening PROJECT.md with the saved editor.`,
 				filePath = filepath.Join(proj.Dir, "PROJECT.md")
 			}
 
-			// Resolve editor.
-			editorCmd, err := resolveEditor(cmd, rt, editorFlag)
+			// Choose edit mode: manual or agent.
+			editMode := "manual"
+			if tui.IsInteractive() && editorFlag == "" {
+				editMode, err = pickEditMode()
+				if err != nil {
+					return nil // cancelled
+				}
+			}
+
+			if editMode == "agent" {
+				return runAgentEdit(cmd, filePath, proj.Dir)
+			}
+
+			// Manual edit: resolve editor.
+			editorCmd, err := resolveEditor(cmd, rt, editorFlag, editorPicker)
 			if err != nil {
 				return err
 			}
@@ -84,8 +100,98 @@ opening PROJECT.md with the saved editor.`,
 	}
 
 	cmd.Flags().StringVar(&editorFlag, "editor", "", "editor command to use (bypasses picker)")
+	cmd.Flags().BoolVar(&editorPicker, "editor-picker", false, "force the editor picker (ignore saved preference)")
 
 	return cmd
+}
+
+// pickEditMode shows a choice between manual editing and agent editing.
+// If no AI agents are installed, it returns "manual" without prompting.
+func pickEditMode() (string, error) {
+	if !agent.HasAny() {
+		return "manual", nil
+	}
+
+	options := []huh.Option[string]{
+		huh.NewOption("Manual edit (open in an editor)", "manual"),
+		huh.NewOption("Agent edit (AI-assisted editing)", "agent"),
+	}
+
+	var selected string
+	theme := huh.ThemeBase()
+	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
+	theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
+
+	err := huh.NewSelect[string]().
+		Title("How would you like to edit this file?").
+		Options(options...).
+		Value(&selected).
+		WithTheme(theme).
+		Run()
+
+	if err != nil {
+		return "", err
+	}
+	return selected, nil
+}
+
+// runAgentEdit spawns an AI agent to edit the selected file.
+func runAgentEdit(cmd *cobra.Command, filePath string, projectDir string) error {
+	agents := agent.Detect()
+	if len(agents) == 0 {
+		return fmt.Errorf("no AI agents (claude, codex) found on PATH")
+	}
+
+	var chosenAgent agent.Agent
+	if len(agents) == 1 {
+		chosenAgent = agents[0]
+	} else {
+		options := make([]huh.Option[string], len(agents))
+		for i, a := range agents {
+			options[i] = huh.NewOption(a.Name, a.Command)
+		}
+
+		var selected string
+		theme := huh.ThemeBase()
+		theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
+		theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
+
+		err := huh.NewSelect[string]().
+			Title("Choose an AI agent").
+			Options(options...).
+			Value(&selected).
+			WithTheme(theme).
+			Run()
+
+		if err != nil {
+			return nil // cancelled
+		}
+
+		for _, a := range agents {
+			if a.Command == selected {
+				chosenAgent = a
+				break
+			}
+		}
+	}
+
+	var userPrompt string
+	theme := huh.ThemeBase()
+	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
+
+	err := huh.NewText().
+		Title("Describe the changes you want").
+		Description(fmt.Sprintf("The agent will edit: %s", filepath.Base(filePath))).
+		Value(&userPrompt).
+		WithTheme(theme).
+		Run()
+
+	if err != nil || strings.TrimSpace(userPrompt) == "" {
+		return nil
+	}
+
+	fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(fmt.Sprintf("Launching %s...", chosenAgent.Name)))
+	return agent.SpawnWithFile(chosenAgent, projectDir, filePath, userPrompt)
 }
 
 // browseFiles presents an interactive file browser rooted at projectDir.
@@ -190,7 +296,7 @@ func isTextFile(e os.DirEntry) bool {
 
 // resolveEditor determines which editor command to use.
 // Priority: --editor flag > saved config (if still installed) > interactive picker.
-func resolveEditor(cmd *cobra.Command, rt RuntimeContext, flagValue string) (string, error) {
+func resolveEditor(cmd *cobra.Command, rt RuntimeContext, flagValue string, forcePicker bool) (string, error) {
 	if flagValue != "" {
 		return flagValue, nil
 	}
@@ -203,8 +309,8 @@ func resolveEditor(cmd *cobra.Command, rt RuntimeContext, flagValue string) (str
 		return "vim", nil
 	}
 
-	// Interactive: use saved editor if it's still installed.
-	if rt.Config.Editor != "" && editor.HasCLI(rt.Config.Editor) {
+	// Interactive: use saved editor if it's still installed and picker isn't forced.
+	if !forcePicker && rt.Config.Editor != "" && editor.IsInstalled(rt.Config.Editor) {
 		return rt.Config.Editor, nil
 	}
 
@@ -219,6 +325,11 @@ func resolveEditor(cmd *cobra.Command, rt RuntimeContext, flagValue string) (str
 		label := ed.Name
 		if ed.Type == editor.Terminal {
 			label += "  (terminal)"
+		} else {
+			label += "  (GUI)"
+		}
+		if ed.Command == rt.Config.Editor {
+			label += " *"
 		}
 		options[i] = huh.NewOption(label, ed.Command)
 	}

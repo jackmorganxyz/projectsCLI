@@ -14,6 +14,7 @@ type DashboardModel struct {
 	table    table.Model
 	projects []*project.Project
 	quitting bool
+	selected bool
 }
 
 // NewDashboardModel creates a dashboard from a list of projects.
@@ -69,6 +70,7 @@ func (m DashboardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "enter":
 			m.quitting = true
+			m.selected = true
 			return m, tea.Quit
 		}
 	}
@@ -97,6 +99,11 @@ func (m DashboardModel) View() string {
 	view += helpStyle.Render(fmt.Sprintf("  %d projects | j/k navigate | enter select | q quit", len(m.projects)))
 
 	return view
+}
+
+// WasSelected reports whether the user pressed Enter (vs q/esc to quit).
+func (m DashboardModel) WasSelected() bool {
+	return m.selected
 }
 
 // SelectedSlug returns the slug of the currently selected project.

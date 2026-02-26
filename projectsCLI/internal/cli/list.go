@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 
+	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/jackmorganxyz/projectsCLI/internal/project"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
@@ -53,7 +55,7 @@ func NewListCmd() *cobra.Command {
 
 			// If interactive, launch the dashboard TUI.
 			if tui.IsInteractive() {
-				return runDashboard(projects)
+				return runDashboard(cmd, projects)
 			}
 
 			// Plain text table — include Folder column if folders are configured.
@@ -105,9 +107,72 @@ func NewListCmd() *cobra.Command {
 	return cmd
 }
 
-// runDashboard launches the interactive dashboard TUI.
-func runDashboard(projects []*project.Project) error {
+// runDashboard launches the interactive dashboard TUI and, if a project is
+// selected, shows a command picker and executes the chosen command.
+func runDashboard(cmd *cobra.Command, projects []*project.Project) error {
 	m := tui.NewDashboardModel(projects)
-	_, err := tui.RunProgram(m)
-	return err
+	finalModel, err := tui.RunProgram(m)
+	if err != nil {
+		return err
+	}
+
+	dm := finalModel.(tui.DashboardModel)
+	if !dm.WasSelected() {
+		return nil
+	}
+
+	slug := dm.SelectedSlug()
+	if slug == "" {
+		return nil
+	}
+
+	command, err := pickProjectCommand(slug)
+	if err != nil || command == "" {
+		return err
+	}
+
+	root := cmd.Root()
+	root.SetArgs([]string{command, slug})
+	return root.Execute()
+}
+
+// pickProjectCommand shows a command dropdown for the selected project.
+func pickProjectCommand(slug string) (string, error) {
+	type commandOption struct {
+		label   string
+		command string
+	}
+
+	commands := []commandOption{
+		{"View details", "view"},
+		{"Edit a file", "edit"},
+		{"Open in file manager", "open"},
+		{"Check status", "status"},
+		{"Push to remote", "push"},
+		{"Update metadata", "update"},
+		{"Move to folder", "move"},
+		{"Delete project", "delete"},
+	}
+
+	options := make([]huh.Option[string], len(commands))
+	for i, c := range commands {
+		options[i] = huh.NewOption(c.label, c.command)
+	}
+
+	var selected string
+	theme := huh.ThemeBase()
+	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
+	theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
+
+	err := huh.NewSelect[string]().
+		Title(fmt.Sprintf("What would you like to do with %q?", slug)).
+		Options(options...).
+		Value(&selected).
+		WithTheme(theme).
+		Run()
+
+	if err != nil {
+		return "", nil // Ctrl+C / Esc
+	}
+	return selected, nil
 }

@@ -12,8 +12,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - **`edit` now has an interactive file browser + editor picker** — browse any file in the project, choose from installed editors (Cursor, VS Code, Vim, etc.), choice is saved to config. Use `--editor` flag to override. Falls back to PROJECT.md + saved editor in non-interactive mode.
 - **`github_org` config field renamed to `github_username`** in `~/.projects/config.toml`
 - First-run setup now interactively prompts for **GitHub username** and **auto-git-init** preference
+- **`list` dashboard now supports project actions** — selecting a project from the TUI dashboard shows a command dropdown (view, edit, open, status, push, update, move, delete) and runs the chosen command
+- **`edit` now offers "Manual edit" vs "Agent edit"** — after selecting a file, choose to open it in an editor or spawn an AI agent (Claude Code or Codex CLI) to edit it via a text prompt. Agent option only appears when agents are installed.
+- **Editor picker now labels editors as (terminal) or (GUI)** — makes it clearer which editors open in the terminal vs a separate window
 
 ### Added
+- **AI agent integration** — `create` and `edit` commands can optionally spawn Claude Code or Codex CLI for AI-assisted editing
+- **`agent` package** (`internal/agent/`) — reusable detection and spawning of AI coding agents (Claude Code, Codex CLI)
+- **Agent spawn on `create`** — after scaffolding a new project, optionally launch an AI agent to fill out the template files with a custom prompt
+- **Agent edit mode on `edit`** — choose "Agent edit" to describe changes in a text prompt and let an AI agent edit the file
+- **`--editor-picker` flag** on `edit` command — force re-showing the editor picker even if a preference is saved
+- **`IsInstalled()` editor detection** — properly detects GUI editors (like TextEdit on macOS) that aren't on PATH, fixing an issue where GUI editors couldn't be saved and recalled
 - **Interactive editor detection** — `edit` auto-detects installed GUI editors (macOS via Spotlight, Linux/Windows via PATH) and terminal editors (nvim, vim, nano, emacs, micro, hx)
 - **`--editor` flag** on `edit` command — bypass the editor picker for a single invocation
 - **`editor` package** (`internal/editor/`) — reusable cross-platform editor detection and launch logic

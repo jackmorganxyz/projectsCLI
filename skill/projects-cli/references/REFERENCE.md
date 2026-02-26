@@ -55,6 +55,7 @@ If slug is omitted, it is auto-generated from `--title` (e.g. `--title "My Cool 
 - Writes template files: `USAGE.md`, `memory/MEMORY.md`, `context/CONTEXT.md`, `tasks/TODO.md`, `docs/README.md`, `.gitignore`
 - If `auto_git_init = true` in config: runs `git init`, `git add -A`, `git commit`
 - Regenerates `PROJECTS.md` registry in the projects directory
+- **Interactive AI agent prompt**: If Claude Code (`claude`) or Codex CLI (`codex`) is installed, prompts the user to optionally spawn an agent to fill out the scaffolded files. The user provides a text prompt, and the agent runs in the project directory with stdin/stdout attached. This step is skipped in JSON mode and non-interactive mode.
 
 ---
 
@@ -98,7 +99,7 @@ None.
 
 ### Behavior
 
-- Interactive TTY: launches TUI dashboard
+- Interactive TTY: launches TUI dashboard. Selecting a project (Enter) shows a command picker dropdown (view, edit, open, status, push, update, move, delete) and auto-runs the chosen command. Pressing q/Esc quits without action.
 - Non-TTY or `--json`: outputs JSON array
 - Optional fields (`tags`, `description`, `git_remote`, `body`, `folder`) are omitted from JSON when empty
 - When folders are configured, table output includes a Folder column
@@ -198,7 +199,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"  # only if remote is set
 
 ## `edit <slug>`
 
-Interactively browse project files and open the selected file in a chosen editor.
+Interactively browse project files and choose to edit manually (in an editor) or via an AI agent.
 
 ### Arguments
 
@@ -210,20 +211,32 @@ Interactively browse project files and open the selected file in a chosen editor
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--editor` | string | `""` | Editor command to use (bypasses interactive picker) |
+| `--editor` | string | `""` | Editor command to use (bypasses edit mode picker and editor picker) |
+| `--editor-picker` | bool | `false` | Force re-showing the editor selection prompt (ignore saved preference) |
 
 ### Behavior
 
-- **Interactive**: Presents a file browser to navigate the project directory (folders first, then text files, hidden files excluded). The user selects a file, then selects an editor from auto-detected installed editors. The editor choice is saved to `config.editor` for future invocations.
+- **Interactive**: Presents a file browser to navigate the project directory. After selecting a file, shows an edit mode picker:
+  - **Manual edit** — opens the file in the user's preferred editor. On first run (or with `--editor-picker`), shows a picker of auto-detected installed editors labeled as `(terminal)` or `(GUI)`. The choice is saved to `config.editor`.
+  - **Agent edit** — spawns an AI agent (Claude Code or Codex CLI) to edit the file. The user selects an agent (if multiple are installed), provides a text prompt describing the changes, and the agent runs in the project directory. This option only appears when at least one AI agent is installed.
 - **Non-interactive**: Opens `PROJECT.md` with the saved `config.editor` (defaults to `$EDITOR` or `vim`).
-- **`--editor` flag**: Uses the specified editor command without prompting and without saving to config.
+- **`--editor` flag**: Uses the specified editor command without prompting and without saving to config. Skips the edit mode picker.
+- **`--editor-picker` flag**: Forces the editor selection prompt even if an editor is already saved in config. Useful for switching editors.
 
 ### Editor Detection
 
 Auto-detects installed editors by platform:
-- **macOS**: GUI apps via Spotlight (`mdfind`) — Cursor, VS Code, Sublime Text, BBEdit, Zed, TextEdit. CLI editors via `PATH` — nvim, vim, nano, emacs, micro, hx.
+- **macOS**: GUI apps via Spotlight (`mdfind`) — Cursor, VS Code, Sublime Text, BBEdit, Zed, TextEdit. CLI editors via `PATH` — nvim, vim, nano, emacs, micro, hx. GUI editors are properly detected for saved preference recall using `IsInstalled()` (not just PATH lookup).
 - **Linux**: GUI editors via `PATH` — code, cursor, subl, zed, kate, gedit, gnome-text-editor. Same CLI editors.
 - **Windows**: GUI editors via `PATH` — code, cursor, subl, notepad++, notepad. Same CLI editors.
+
+### AI Agent Detection
+
+Detects installed AI coding agents:
+- **Claude Code** — detected via `claude` on PATH
+- **Codex CLI** — detected via `codex` on PATH
+
+If no agents are installed, the edit mode picker is skipped and the command goes directly to manual edit.
 
 ### File Browser
 
@@ -238,6 +251,7 @@ Auto-detects installed editors by platform:
 - Saves the editor choice to `config.editor` on first interactive pick
 - Terminal editors (vim, nano, etc.) run in the foreground (blocking)
 - GUI editors (VS Code, Cursor, etc.) launch in the background
+- Agent edit spawns an AI agent in the foreground (blocking) with stdin/stdout/stderr attached
 
 ---
 

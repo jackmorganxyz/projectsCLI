@@ -1,6 +1,6 @@
 ---
 name: projects-cli
-description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
+description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Supports AI agent integration (Claude Code, Codex CLI) for scaffolding and editing. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
 license: MIT
 compatibility: Requires projects binary installed. Optional gh CLI for GitHub integration.
 metadata:
@@ -58,10 +58,10 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 
 | Command | Alias | Purpose |
 |---------|-------|---------|
-| `create [slug]` | — | Scaffold a new project (slug auto-generated from `--title` if omitted) |
-| `list` | `ls` | List all projects (TUI or JSON) |
+| `create [slug]` | — | Scaffold a new project (slug auto-generated from `--title` if omitted). Optionally spawn an AI agent to fill out the scaffold. |
+| `list` | `ls` | List all projects (TUI or JSON). In TUI mode, selecting a project shows a command picker. |
 | `view <slug>` | — | View project details |
-| `edit <slug>` | — | Browse project files and open in preferred editor (`--editor` to override) |
+| `edit <slug>` | — | Browse project files, then choose manual edit (in an editor) or agent edit (AI-assisted via prompt). `--editor` to override, `--editor-picker` to re-pick editor. |
 | `open <slug>` | — | Open project folder in OS file manager (Finder, Explorer, etc.) |
 | `load <slug>` | — | Export project data (JSON, shell vars) |
 | `delete <slug>` | `rm` | Delete a project |
@@ -136,6 +136,8 @@ projects create --title "My API" --tags "go,api" --json
 
 **Side effects**: Creates directory tree (`docs/`, `memory/`, `context/`, `tasks/`, `code/`, `private/`), writes `PROJECT.md` and template files, optionally runs `git init`.
 
+**AI agent integration**: In interactive mode, if Claude Code (`claude`) or Codex CLI (`codex`) is installed, the user is prompted to optionally spawn an AI agent to fill out the scaffolded files. The user provides a text prompt describing what the agent should do, and the agent runs in the project directory.
+
 ## Listing Projects
 
 ```sh
@@ -147,6 +149,8 @@ projects ls --json
 ```json
 [{"meta": {"title": "My API", "slug": "my-api", "status": "active", "tags": ["go"], "description": "...", "created_at": "...", "updated_at": "...", "git_remote": "..."}, "body": "# My API\n...", "dir": "/path/to/my-api"}]
 ```
+
+**Interactive behavior**: In TUI mode, the dashboard displays a project table. Selecting a project (Enter) shows a command picker dropdown — view, edit, open, status, push, update, move, or delete — and auto-runs the chosen command on that project.
 
 ## Viewing a Project
 
@@ -273,15 +277,21 @@ projects delete <slug> --force --json
 ## Editing a Project File
 
 ```sh
-projects edit <slug>                # interactive file browser + editor picker
-projects edit <slug> --editor vim   # skip editor picker
+projects edit <slug>                    # interactive file browser + edit mode picker
+projects edit <slug> --editor vim       # skip edit mode and editor picker, use vim
+projects edit <slug> --editor-picker    # force re-showing the editor picker
 ```
 
-Interactively browse project files and open the selected file in the user's preferred editor. On first run, auto-detects installed editors (Cursor, VS Code, Vim, Nano, etc.) and prompts the user to pick one. The choice is saved to `config.editor`.
+Interactively browse project files and choose an edit mode:
+
+1. **Manual edit** — open the file in your preferred editor. On first run, auto-detects installed editors (Cursor, VS Code, TextEdit, Vim, Nano, etc.) and prompts the user to pick one. The choice is saved to `config.editor`. Editors are labeled as `(terminal)` or `(GUI)` in the picker.
+2. **Agent edit** — spawn an AI agent (Claude Code or Codex CLI) to edit the file. The user provides a text prompt describing the changes, and the agent runs in the project directory. This option only appears when at least one AI agent is installed.
 
 In non-interactive mode, defaults to opening `PROJECT.md` with the saved editor.
 
-**Flags**: `--editor <command>` — override saved editor for a single invocation.
+**Flags**:
+- `--editor <command>` — override saved editor for a single invocation (skips edit mode picker)
+- `--editor-picker` — force re-showing the editor selection even if a preference is saved
 
 **Note:** This command is interactive — for agents, use direct file reads/writes on project files instead.
 
