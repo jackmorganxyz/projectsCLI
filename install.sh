@@ -42,7 +42,28 @@ echo "Downloading ${BINARY} ${TAG} for ${OS}/${ARCH}..."
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
+CHECKSUMS_URL="https://github.com/${REPO}/releases/download/${TAG}/checksums.txt"
+
 curl -sL "$URL" -o "${TMPDIR}/${ARCHIVE}"
+curl -sL "$CHECKSUMS_URL" -o "${TMPDIR}/checksums.txt"
+
+# Verify integrity of downloaded archive
+echo "Verifying checksum..."
+EXPECTED=$(grep "${ARCHIVE}" "${TMPDIR}/checksums.txt" | awk '{print $1}')
+if [ -z "$EXPECTED" ]; then
+  echo "Error: no checksum found for ${ARCHIVE} in checksums.txt"
+  exit 1
+fi
+
+ACTUAL=$(sha256sum "${TMPDIR}/${ARCHIVE}" | awk '{print $1}')
+if [ "$ACTUAL" != "$EXPECTED" ]; then
+  echo "Error: checksum mismatch"
+  echo "  expected: $EXPECTED"
+  echo "  actual:   $ACTUAL"
+  exit 1
+fi
+echo "Checksum OK."
+
 tar -xzf "${TMPDIR}/${ARCHIVE}" -C "$TMPDIR"
 
 # Install binary
