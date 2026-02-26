@@ -1,4 +1,4 @@
-<h1 align="center">projects</h1>
+<h1 align="center">projectsCLI</h1>
 
 <p align="center">
   <em>Less chaos, more shipping. Built for humans and agents. ✨</em>
