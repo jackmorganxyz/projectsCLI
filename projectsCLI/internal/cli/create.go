@@ -105,10 +105,10 @@ If slug is omitted, it is generated from --title.`,
 			}
 
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %q — %s", slug, tui.RandomCreateCheer())))
-			fmt.Fprintln(w, tui.FormatField("Directory", dir))
+			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Created project %s — %s", tui.Slug(slug), tui.RandomCreateCheer())))
+			fmt.Fprintln(w, tui.FormatField("Directory", tui.Path(dir)))
 			if runtime.Folder != "" {
-				fmt.Fprintln(w, tui.FormatField("Folder", runtime.Folder))
+				fmt.Fprintln(w, tui.FormatField("Folder", tui.Slug(runtime.Folder)))
 			}
 			fmt.Fprintln(w, tui.FormatField("Created", time.Now().Format("2006-01-02")))
 			if tip := tui.MaybeTip(); tip != "" {

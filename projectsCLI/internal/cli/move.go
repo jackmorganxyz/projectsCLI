@@ -96,14 +96,15 @@ Use --folder <name> to move into a folder. Use --folder "" to move to the top le
 			w := cmd.OutOrStdout()
 			fromLabel := "top level"
 			if proj.Folder != "" {
-				fromLabel = fmt.Sprintf("folder %q", proj.Folder)
+				fromLabel = fmt.Sprintf("folder %s", tui.Slug(proj.Folder))
 			}
 			toLabel := "top level"
 			if folder != "" {
-				toLabel = fmt.Sprintf("folder %q", folder)
+				toLabel = fmt.Sprintf("folder %s", tui.Slug(folder))
 			}
-			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Moved %q from %s to %s", slug, fromLabel, toLabel)))
-			fmt.Fprintln(w, tui.FormatField("New path", destDir))
+			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Moved %s from %s to %s", tui.Slug(slug), fromLabel, toLabel)))
+			fmt.Fprintln(w, tui.FormatField("New path", tui.Path(destDir)))
+			fmt.Fprintln(w, tui.Muted("  "+tui.RandomMoveCheer()))
 			return nil
 		},
 	}

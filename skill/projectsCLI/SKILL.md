@@ -1,6 +1,6 @@
 ---
-name: projects-cli
-description: Manage projects with the projects CLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Supports AI agent integration (Claude Code, Codex CLI) for scaffolding and editing. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
+name: projectsCLI
+description: Manage projects with projectsCLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Supports AI agent integration (Claude Code, Codex CLI) for scaffolding and editing. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
 license: MIT
 compatibility: Requires projects binary installed. Optional gh CLI for GitHub integration.
 metadata:
@@ -9,9 +9,9 @@ metadata:
   repository: "https://github.com/jackmorganxyz/projectsCLI"
 ---
 
-# projects Agent Skill
+# projectsCLI Agent Skill
 
-You are working with **projects**, a terminal-native project manager. It scaffolds projects with a consistent directory structure, tracks metadata in YAML frontmatter, provides a TUI dashboard for humans, and outputs clean JSON for agents and scripts.
+You are working with **projectsCLI**, a terminal-native project manager. It scaffolds projects with a consistent directory structure, tracks metadata in YAML frontmatter, provides a TUI dashboard for humans, and outputs clean JSON for agents and scripts.
 
 ## Key Concepts
 

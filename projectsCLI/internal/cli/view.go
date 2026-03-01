@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
 	"github.com/spf13/cobra"
@@ -52,25 +51,27 @@ func NewViewCmd() *cobra.Command {
 
 			// Plain text view.
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, tui.Header(proj.Meta.Title))
+			fmt.Fprintln(w, tui.Header("📂 "+proj.Meta.Title))
+			fmt.Fprintln(w, tui.Muted("  "+tui.RandomViewGreeting()+" "+tui.Slug(proj.Meta.Slug)))
 			fmt.Fprintln(w)
-			fmt.Fprintln(w, tui.FormatField("Slug", proj.Meta.Slug))
-			fmt.Fprintln(w, tui.FormatField("Status", tui.StatusColor(proj.Meta.Status)))
+			fmt.Fprintln(w, tui.FormatField("Slug", tui.Slug(proj.Meta.Slug)))
+			fmt.Fprintln(w, tui.FormatField("Status", tui.StatusEmoji(proj.Meta.Status)+tui.StatusColor(proj.Meta.Status)))
 			fmt.Fprintln(w, tui.FormatField("Created", proj.Meta.CreatedAt))
 			fmt.Fprintln(w, tui.FormatField("Updated", proj.Meta.UpdatedAt))
 			if proj.Meta.Description != "" {
 				fmt.Fprintln(w, tui.FormatField("Description", proj.Meta.Description))
 			}
 			if len(proj.Meta.Tags) > 0 {
-				fmt.Fprintln(w, tui.FormatField("Tags", strings.Join(proj.Meta.Tags, ", ")))
+				fmt.Fprintln(w, tui.FormatField("Tags", tui.TagList(proj.Meta.Tags)))
 			}
 			if proj.Meta.GitRemote != "" {
-				fmt.Fprintln(w, tui.FormatField("Remote", proj.Meta.GitRemote))
+				fmt.Fprintln(w, tui.FormatField("Remote", tui.Path(proj.Meta.GitRemote)))
 			}
-			fmt.Fprintln(w, tui.FormatField("Directory", proj.Dir))
+			fmt.Fprintln(w, tui.FormatField("Directory", tui.Path(proj.Dir)))
 
 			if proj.Body != "" {
 				fmt.Fprintln(w)
+				fmt.Fprintln(w, tui.Divider(40))
 				fmt.Fprintln(w, proj.Body)
 			}
 			return nil

@@ -37,7 +37,7 @@ func NewDeleteCmd() *cobra.Command {
 					return err
 				}
 				if !confirmed {
-					fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomDeleteCancelled()))
+					fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(tui.RandomDeleteCancelled()))
 					return nil
 				}
 			} else if !force {
@@ -58,8 +58,8 @@ func NewDeleteCmd() *cobra.Command {
 				})
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Deleted project %q", slug)))
-			fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(tui.RandomDeleteFarewell()))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Deleted project %s", tui.Slug(slug))))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.WarningMessage(tui.RandomDeleteFarewell()))
 			return nil
 		},
 	}

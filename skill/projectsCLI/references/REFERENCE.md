@@ -1,4 +1,4 @@
-# projects — Full Command Reference
+# projectsCLI — Full Command Reference
 
 Complete specification of every command, flag, argument, and JSON output schema.
 

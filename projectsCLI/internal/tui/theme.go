@@ -213,5 +213,33 @@ func padRight(value string, width int) string {
 
 // FormatField renders a labeled field for detail views.
 func FormatField(label, value string) string {
-	return fmt.Sprintf("  %s %s", DefaultTheme.keyLabel.Render(label+":"), value)
+	return fmt.Sprintf("  %s %s", DefaultTheme.keyLabel.Render(label+":"), DefaultTheme.keyValue.Render(value))
+}
+
+// Slug renders a project slug in the primary accent color.
+func Slug(text string) string {
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(ColorPrimary)).Bold(true).Render(text)
+}
+
+// Path renders a file/directory path in info blue.
+func Path(text string) string {
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(ColorInfo)).Render(text)
+}
+
+// TagList renders tags as a colorful comma-separated string.
+func TagList(tags []string) string {
+	style := lipgloss.NewStyle().Foreground(lipgloss.Color(ColorSuccess))
+	parts := make([]string, len(tags))
+	for i, t := range tags {
+		parts[i] = style.Render(t)
+	}
+	return strings.Join(parts, DefaultTheme.mutedStyle.Render(", "))
+}
+
+// Divider renders a styled horizontal divider.
+func Divider(width int) string {
+	if width <= 0 {
+		width = 40
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(ColorPrimary)).Render(strings.Repeat("─", width))
 }

@@ -1,4 +1,4 @@
-# projects — Agent Reference
+# projectsCLI — Agent Reference
 
 Machine-readable reference for AI agents, scripts, and automation.
 

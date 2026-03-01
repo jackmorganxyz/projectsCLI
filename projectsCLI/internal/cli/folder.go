@@ -112,11 +112,11 @@ pick from your logged-in accounts.`,
 			}
 
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Folder %q created", name)))
-			fmt.Fprintln(w, tui.FormatField("GitHub account", account))
-			fmt.Fprintln(w, tui.FormatField("Path", folderDir))
+			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Folder %s created — %s", tui.Slug(name), tui.RandomFolderCheer())))
+			fmt.Fprintln(w, tui.FormatField("GitHub account", tui.Slug(account)))
+			fmt.Fprintln(w, tui.FormatField("Path", tui.Path(folderDir)))
 			fmt.Fprintln(w)
-			fmt.Fprintln(w, tui.Muted(fmt.Sprintf("Create projects here with: projects create <slug> --folder %s", name)))
+			fmt.Fprintln(w, tui.InfoMessage(fmt.Sprintf("Create projects here with: projects create <slug> --folder %s", name)))
 			return nil
 		},
 	}
@@ -193,6 +193,10 @@ func newFolderListCmd() *cobra.Command {
 				return nil
 			}
 
+			w := cmd.OutOrStdout()
+			fmt.Fprintln(w, tui.Header("📂 Your Folders"))
+			fmt.Fprintln(w)
+
 			headers := []string{"Name", "GitHub Account", "Path"}
 			var rows [][]string
 			for _, f := range folders {
@@ -200,7 +204,7 @@ func newFolderListCmd() *cobra.Command {
 				rows = append(rows, []string{f.Name, f.GitHubAccount, path})
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
+			fmt.Fprintln(w, tui.Table(headers, rows))
 			return nil
 		},
 	}
@@ -250,8 +254,9 @@ func newFolderRemoveCmd() *cobra.Command {
 				})
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Folder %q removed from config", name)))
-			fmt.Fprintln(cmd.OutOrStdout(), tui.Muted("Directory and projects were not deleted."))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.SuccessMessage(fmt.Sprintf("Folder %s removed from config", tui.Slug(name))))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.Muted("  "+tui.RandomFolderRemoveQuip()))
+			fmt.Fprintln(cmd.OutOrStdout(), tui.InfoMessage("Directory and projects were not deleted."))
 			return nil
 		},
 	}

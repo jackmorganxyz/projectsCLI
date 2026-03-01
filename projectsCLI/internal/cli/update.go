@@ -88,7 +88,7 @@ Use flags to update specific fields. The updated_at timestamp is automatically s
 			}
 
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Updated project %q", slug)))
+			fmt.Fprintln(w, tui.SuccessMessage(fmt.Sprintf("Updated project %s — %s", tui.Slug(slug), tui.RandomUpdateCheer())))
 			if title != "" {
 				fmt.Fprintln(w, tui.FormatField("Title", proj.Meta.Title))
 			}
@@ -96,10 +96,10 @@ Use flags to update specific fields. The updated_at timestamp is automatically s
 				fmt.Fprintln(w, tui.FormatField("Description", proj.Meta.Description))
 			}
 			if status != "" {
-				fmt.Fprintln(w, tui.FormatField("Status", proj.Meta.Status))
+				fmt.Fprintln(w, tui.FormatField("Status", tui.StatusEmoji(proj.Meta.Status)+tui.StatusColor(proj.Meta.Status)))
 			}
 			if tags != "" {
-				fmt.Fprintln(w, tui.FormatField("Tags", strings.Join(proj.Meta.Tags, ", ")))
+				fmt.Fprintln(w, tui.FormatField("Tags", tui.TagList(proj.Meta.Tags)))
 			}
 			fmt.Fprintln(w, tui.FormatField("Updated", proj.Meta.UpdatedAt))
 			return nil

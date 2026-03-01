@@ -1,4 +1,4 @@
-# Contributing to projects
+# Contributing to projectsCLI
 
 Thanks for your interest in contributing! Whether it's a bug fix, new feature, or documentation improvement, we appreciate the help.
 

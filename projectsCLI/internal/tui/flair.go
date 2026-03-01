@@ -141,6 +141,8 @@ var emptyStateMessages = []string{
 	"It's quiet in here... too quiet. Run 'projects create <slug>' to fix that.",
 	"No projects yet — the world is your oyster. Try 'projects create <slug>'.",
 	"A blank canvas awaits. Zero projects, infinite potential. Run 'projects create <slug>'.",
+	"*tumbleweeds* Nothing here yet. 'projects create <slug>' fixes that.",
+	"Your project list is as empty as a Monday morning inbox. Let's change that.",
 }
 
 // RandomEmptyState returns a random empty-state message.
@@ -161,6 +163,77 @@ func RandomSpinnerMessage() string { return pick(spinnerMessages) }
 
 // SpinnerMessages returns the full spinner message pool for rotation.
 func SpinnerMessages() []string { return spinnerMessages }
+
+var updateCheers = []string{
+	"Glow up complete. 💅",
+	"Looking fresh to death.",
+	"Metadata? More like meta-slay.",
+	"Updated and thriving.",
+	"Project glow-up: success.",
+	"New coat of paint, same banger.",
+}
+
+// RandomUpdateCheer returns a random update celebration.
+func RandomUpdateCheer() string { return pick(updateCheers) }
+
+var moveCheers = []string{
+	"New folder, who dis?",
+	"Relocated successfully. Boxes unharmed.",
+	"New crib, same energy.",
+	"Moving day? Destroyed it.",
+	"Fresh directory vibes.",
+}
+
+// RandomMoveCheer returns a random move celebration.
+func RandomMoveCheer() string { return pick(moveCheers) }
+
+var folderCheers = []string{
+	"Organization level: god tier.",
+	"Folder game? Immaculate af.",
+	"Tidy setup unlocked. Slay.",
+	"Folders make the dream work. Fr fr.",
+	"Everything in its place. Chaos eliminated.",
+}
+
+// RandomFolderCheer returns a random folder creation celebration.
+func RandomFolderCheer() string { return pick(folderCheers) }
+
+var folderRemoveQuips = []string{
+	"Decluttering is self-care.",
+	"One less thing to worry about.",
+	"Folder removed. Projects remain untouched.",
+	"Spring cleaning energy.",
+}
+
+// RandomFolderRemoveQuip returns a random folder removal quip.
+func RandomFolderRemoveQuip() string { return pick(folderRemoveQuips) }
+
+var statusHeaders = []string{
+	"🩺 Project Health Check",
+	"📊 Project Vitals",
+	"🔍 State of the Union",
+	"🏥 How's everything doing?",
+	"📋 The Rundown",
+}
+
+// RandomStatusHeader returns a random status command header.
+func RandomStatusHeader() string {
+	if !emojiEnabled() {
+		return "Project Health"
+	}
+	return pick(statusHeaders)
+}
+
+var viewGreetings = []string{
+	"Here's the scoop on",
+	"Everything you need to know about",
+	"The full picture for",
+	"Deep dive into",
+	"All about",
+}
+
+// RandomViewGreeting returns a random view greeting prefix.
+func RandomViewGreeting() string { return pick(viewGreetings) }
 
 var tips = []string{
 	"Tip: Use 'projects ls' for a quick overview of all your projects.",
@@ -186,6 +259,7 @@ var taglines = []string{
 	"Less chaos, more shipping.",
 	"Projects under control.",
 	"Tidy projects, tidy mind.",
+	"Your terminal deserves nice things.",
 }
 
 // Banner returns a compact styled banner for the root command.

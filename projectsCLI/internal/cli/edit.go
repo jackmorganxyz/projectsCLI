@@ -9,7 +9,6 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/jackmorganxyz/projectsCLI/internal/agent"
 	"github.com/jackmorganxyz/projectsCLI/internal/config"
 	"github.com/jackmorganxyz/projectsCLI/internal/editor"
 	"github.com/jackmorganxyz/projectsCLI/internal/tui"
@@ -40,7 +39,7 @@ func NewEditCmd() *cobra.Command {
 		Use:   "edit <slug>",
 		Short: "Browse and edit a project file",
 		Long: `Interactively browse files in a project directory and open the selected
-file in your preferred editor, or spawn an AI agent to edit it for you.
+file in your preferred editor.
 
 On first run you'll be prompted to pick an editor from those installed on
 your system. The choice is saved to config so subsequent runs open directly.
@@ -76,20 +75,7 @@ opening PROJECT.md with the saved editor.`,
 				filePath = filepath.Join(proj.Dir, "PROJECT.md")
 			}
 
-			// Choose edit mode: manual or agent.
-			editMode := "manual"
-			if tui.IsInteractive() && editorFlag == "" {
-				editMode, err = pickEditMode()
-				if err != nil {
-					return nil // cancelled
-				}
-			}
-
-			if editMode == "agent" {
-				return runAgentEdit(cmd, filePath, proj.Dir)
-			}
-
-			// Manual edit: resolve editor.
+			// Resolve editor.
 			editorCmd, err := resolveEditor(cmd, rt, editorFlag, editorPicker)
 			if err != nil {
 				return err
@@ -103,95 +89,6 @@ opening PROJECT.md with the saved editor.`,
 	cmd.Flags().BoolVar(&editorPicker, "editor-picker", false, "force the editor picker (ignore saved preference)")
 
 	return cmd
-}
-
-// pickEditMode shows a choice between manual editing and agent editing.
-// If no AI agents are installed, it returns "manual" without prompting.
-func pickEditMode() (string, error) {
-	if !agent.HasAny() {
-		return "manual", nil
-	}
-
-	options := []huh.Option[string]{
-		huh.NewOption("Manual edit (open in an editor)", "manual"),
-		huh.NewOption("Agent edit (AI-assisted editing)", "agent"),
-	}
-
-	var selected string
-	theme := huh.ThemeBase()
-	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
-	theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
-
-	err := huh.NewSelect[string]().
-		Title("How would you like to edit this file?").
-		Options(options...).
-		Value(&selected).
-		WithTheme(theme).
-		Run()
-
-	if err != nil {
-		return "", err
-	}
-	return selected, nil
-}
-
-// runAgentEdit spawns an AI agent to edit the selected file.
-func runAgentEdit(cmd *cobra.Command, filePath string, projectDir string) error {
-	agents := agent.Detect()
-	if len(agents) == 0 {
-		return fmt.Errorf("no AI agents (claude, codex) found on PATH")
-	}
-
-	var chosenAgent agent.Agent
-	if len(agents) == 1 {
-		chosenAgent = agents[0]
-	} else {
-		options := make([]huh.Option[string], len(agents))
-		for i, a := range agents {
-			options[i] = huh.NewOption(a.Name, a.Command)
-		}
-
-		var selected string
-		theme := huh.ThemeBase()
-		theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
-		theme.Focused.SelectSelector = theme.Focused.SelectSelector.Foreground(lipgloss.Color(tui.ColorPrimary))
-
-		err := huh.NewSelect[string]().
-			Title("Choose an AI agent").
-			Options(options...).
-			Value(&selected).
-			WithTheme(theme).
-			Run()
-
-		if err != nil {
-			return nil // cancelled
-		}
-
-		for _, a := range agents {
-			if a.Command == selected {
-				chosenAgent = a
-				break
-			}
-		}
-	}
-
-	var userPrompt string
-	theme := huh.ThemeBase()
-	theme.Focused.Title = theme.Focused.Title.Foreground(lipgloss.Color(tui.ColorPrimary))
-
-	err := huh.NewText().
-		Title("Describe the changes you want").
-		Description(fmt.Sprintf("The agent will edit: %s", filepath.Base(filePath))).
-		Value(&userPrompt).
-		WithTheme(theme).
-		Run()
-
-	if err != nil || strings.TrimSpace(userPrompt) == "" {
-		return nil
-	}
-
-	fmt.Fprintln(cmd.OutOrStdout(), tui.Muted(fmt.Sprintf("Launching %s...", chosenAgent.Name)))
-	return agent.SpawnWithFile(chosenAgent, projectDir, filePath, userPrompt)
 }
 
 // browseFiles presents an interactive file browser rooted at projectDir.

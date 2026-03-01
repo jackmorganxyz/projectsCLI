@@ -77,8 +77,8 @@ func (m DetailModel) renderContent() string {
 	var sb strings.Builder
 	p := m.project
 
-	sb.WriteString(FormatField("Slug", p.Meta.Slug) + "\n")
-	sb.WriteString(FormatField("Status", StatusColor(p.Meta.Status)) + "\n")
+	sb.WriteString(FormatField("Slug", Slug(p.Meta.Slug)) + "\n")
+	sb.WriteString(FormatField("Status", StatusEmoji(p.Meta.Status)+StatusColor(p.Meta.Status)) + "\n")
 	sb.WriteString(FormatField("Created", p.Meta.CreatedAt) + "\n")
 	sb.WriteString(FormatField("Updated", p.Meta.UpdatedAt) + "\n")
 
@@ -86,17 +86,17 @@ func (m DetailModel) renderContent() string {
 		sb.WriteString(FormatField("Description", p.Meta.Description) + "\n")
 	}
 	if len(p.Meta.Tags) > 0 {
-		sb.WriteString(FormatField("Tags", strings.Join(p.Meta.Tags, ", ")) + "\n")
+		sb.WriteString(FormatField("Tags", TagList(p.Meta.Tags)) + "\n")
 	}
 	if p.Meta.GitRemote != "" {
-		sb.WriteString(FormatField("Remote", p.Meta.GitRemote) + "\n")
+		sb.WriteString(FormatField("Remote", Path(p.Meta.GitRemote)) + "\n")
 	}
-	sb.WriteString(FormatField("Directory", p.Dir) + "\n")
+	sb.WriteString(FormatField("Directory", Path(p.Dir)) + "\n")
 
 	if p.Body != "" {
 		sb.WriteString("\n")
-		sb.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color(ColorPrimary)).Bold(true).Render("Content") + "\n")
-		sb.WriteString(strings.Repeat("-", 40) + "\n")
+		sb.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color(ColorPrimary)).Bold(true).Render("📝 Content") + "\n")
+		sb.WriteString(Divider(40) + "\n")
 		sb.WriteString(p.Body)
 	}
 

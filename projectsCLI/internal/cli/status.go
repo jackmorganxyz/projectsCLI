@@ -101,7 +101,7 @@ func NewStatusCmd() *cobra.Command {
 						cleanIcon(h.HasGit, h.Uncommitted),
 					})
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), tui.Header("Project Health"))
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Header(tui.RandomStatusHeader()))
 				fmt.Fprintln(cmd.OutOrStdout())
 				fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
 			} else {
@@ -116,7 +116,7 @@ func NewStatusCmd() *cobra.Command {
 						cleanIcon(h.HasGit, h.Uncommitted),
 					})
 				}
-				fmt.Fprintln(cmd.OutOrStdout(), tui.Header("Project Health"))
+				fmt.Fprintln(cmd.OutOrStdout(), tui.Header(tui.RandomStatusHeader()))
 				fmt.Fprintln(cmd.OutOrStdout())
 				fmt.Fprintln(cmd.OutOrStdout(), tui.Table(headers, rows))
 			}

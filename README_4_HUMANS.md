@@ -1,4 +1,4 @@
-# projects — README for Humans 🧑‍💻
+# projectsCLI — README for Humans 🧑‍💻
 
 > Less chaos, more shipping.
 
@@ -25,7 +25,7 @@ A terminal-native project manager with a nice TUI, git superpowers, and just the
 
 You have projects everywhere. Some in `~/code`, some in `~/Desktop/random-idea`, some you forgot about entirely. Half of them don't have a README. None of them have a consistent structure. It's fine. We've all been there. (It's not fine.)
 
-**projects gives every project a home.**
+**projectsCLI gives every project a home.**
 
 One command to scaffold. One command to push. A dashboard to see everything at a glance. And when you pipe it to another tool, it automatically switches from pretty TUI output to clean JSON — because machines have feelings too.
 
@@ -211,7 +211,7 @@ Green means good, amber means needs attention. At a glance, you know what needs 
 
 ## 🗂️ What You Get
 
-Every project created by projects follows the same structure. Consistency is a love language.
+Every project created by projectsCLI follows the same structure. Consistency is a love language.
 
 | File/Directory | Purpose |
 |---|---|
@@ -498,7 +498,7 @@ The config file is created automatically the first time you run any command. You
 
 ## 🎭 The Personality
 
-projects believes developer tools should spark joy, not existential dread. You'll encounter random messages throughout:
+projectsCLI believes developer tools should spark joy, not existential dread. You'll encounter random messages throughout:
 
 **When you create a project:**
 - *"Fresh project, who dis?"*
@@ -541,7 +541,7 @@ Don't want emoji? Set `NO_EMOJI=1` or `TERM=dumb`. We won't judge. (We'll judge 
 
 ## 💡 Tips & Tricks
 
-**Pipe anything to jq.** When projects detects it's not writing to a terminal, it auto-switches to JSON. It's psychic like that:
+**Pipe anything to jq.** When projectsCLI detects it's not writing to a terminal, it auto-switches to JSON. It's psychic like that:
 
 ```sh
 projects ls | jq '.[].meta.slug'

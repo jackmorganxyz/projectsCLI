@@ -8,13 +8,13 @@ help: ## Show this help
 # --- Build ---
 
 build: ## Build the binary
-	cd projectsCLI && go build -o projectsCLI ./cmd/projectsCLI
+	cd projectsCLI && go build -o projects ./cmd/projects
 
 run: build ## Build and run (usage: make run ARGS="ls")
-	./projectsCLI/projectsCLI $(ARGS)
+	./projectsCLI/projects $(ARGS)
 
 install: build ## Install to /usr/local/bin
-	cp projectsCLI/projectsCLI /usr/local/bin/projectsCLI
+	cp projectsCLI/projects /usr/local/bin/projects
 
 # --- Quality ---
 
@@ -40,7 +40,7 @@ snapshot: ## Build snapshot release (no publish)
 # --- Clean ---
 
 clean: ## Remove build artifacts
-	rm -f projectsCLI/projectsCLI
+	rm -f projectsCLI/projects
 	rm -rf dist/
 
 # --- Dependencies ---

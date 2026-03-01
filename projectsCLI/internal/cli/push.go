@@ -37,7 +37,7 @@ func NewPushCmd() *cobra.Command {
 
 			// Ensure git is initialized.
 			if !git.IsRepo(dir) {
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Setting up git... first commits are special."))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.InfoMessage("Setting up git... first commits are special. 🌱"))
 				if err := git.Init(dir); err != nil {
 					return fmt.Errorf("git init: %w", err)
 				}
@@ -75,14 +75,14 @@ func NewPushCmd() *cobra.Command {
 				org := runtime.Config.GitHubUsername
 				if f := folderForProject(runtime.Config, proj); f != nil && f.GitHubAccount != "" {
 					// Switch gh auth to the folder's account before creating the repo.
-					fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted(fmt.Sprintf("Switching to GitHub account %q...", f.GitHubAccount)))
+					fmt.Fprintln(cmd.ErrOrStderr(), tui.InfoMessage(fmt.Sprintf("Switching to GitHub account %s... 🔄", tui.Slug(f.GitHubAccount))))
 					if err := git.SwitchAuth(f.GitHubAccount); err != nil {
 						return fmt.Errorf("could not switch to GitHub account %q — is it authenticated? Run 'gh auth login' to add it: %w", f.GitHubAccount, err)
 					}
 					org = f.GitHubAccount
 				}
 
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.Muted("Creating GitHub repo... your code deserves a home."))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.InfoMessage("Creating GitHub repo... your code deserves a home. 🏠"))
 				repoURL, err := git.CreateRepo(dir, slug, org, private)
 				if err != nil {
 					return fmt.Errorf("create repo: %w", err)
@@ -94,7 +94,7 @@ func NewPushCmd() *cobra.Command {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to save remote URL to PROJECT.md: %v\n", err)
 				}
 
-				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage(fmt.Sprintf("Repository created: %s", repoURL)))
+				fmt.Fprintln(cmd.ErrOrStderr(), tui.SuccessMessage(fmt.Sprintf("Repository created: %s", tui.Path(repoURL))))
 			} else if git.HasRemote(dir) {
 				// Switch gh auth if project is in a folder with a GitHub account.
 				if f := folderForProject(runtime.Config, proj); f != nil && f.GitHubAccount != "" {

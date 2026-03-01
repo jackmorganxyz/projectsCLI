@@ -102,12 +102,12 @@ All fields are optional. Sensible defaults are built in — we're not here to ma
 
 ## 🤖 Agent Skill
 
-projects ships with an [Agent Skill](https://agentskills.io) — a portable instruction set that teaches AI agents how to use the CLI. Compatible with Claude Code, and any agent that supports the [Agent Skills format](https://github.com/agentskills/agentskills).
+projectsCLI ships with an [Agent Skill](https://agentskills.io) — a portable instruction set that teaches AI agents how to use the CLI. Compatible with Claude Code, and any agent that supports the [Agent Skills format](https://github.com/agentskills/agentskills).
 
 **Install the skill (Claude Code):**
 
 ```sh
-claude install-skill https://github.com/jackmorganxyz/projectsCLI/tree/main/skill/projects-cli
+claude install-skill https://github.com/jackmorganxyz/projectsCLI/tree/main/skill/projectsCLI
 ```
 
 **Or copy it manually** into your agent's skills directory:
@@ -115,11 +115,11 @@ claude install-skill https://github.com/jackmorganxyz/projectsCLI/tree/main/skil
 ```sh
 # Clone just the skill
 git clone --depth 1 --filter=blob:none --sparse https://github.com/jackmorganxyz/projectsCLI.git
-cd projectsCLI && git sparse-checkout set skill/projects-cli
-cp -r skill/projects-cli ~/.claude/skills/projects-cli
+cd projectsCLI && git sparse-checkout set skill/projectsCLI
+cp -r skill/projectsCLI ~/.claude/skills/projectsCLI
 ```
 
-The skill lives in [`skill/projects-cli/`](./skill/projects-cli/) and follows the [Agent Skills specification](https://agentskills.io/specification).
+The skill lives in [`skill/projectsCLI/`](./skill/projectsCLI/) and follows the [Agent Skills specification](https://agentskills.io/specification).
 
 ## 🤝 Contributing
 
