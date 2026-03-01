@@ -291,6 +291,29 @@ func Banner() string {
 	return box.Render(content + emoji) + "\n"
 }
 
+var upgradeCheers = []string{
+	"Leveled up!",
+	"Fresh install, fresh vibes.",
+	"New version just dropped.",
+	"Upgraded and dangerous.",
+	"Evolution complete.",
+	"Glow up: achieved.",
+}
+
+// RandomUpgradeCheer returns a random upgrade celebration.
+func RandomUpgradeCheer() string { return pick(upgradeCheers) }
+
+var alreadyLatestQuips = []string{
+	"Already on the latest. You're ahead of the curve.",
+	"No updates needed. Living in the future.",
+	"You're running the latest. Nothing to see here.",
+	"Peak performance. Already up to date.",
+	"Bleeding edge, baby. You're current.",
+}
+
+// RandomAlreadyLatest returns a random already-up-to-date quip.
+func RandomAlreadyLatest() string { return pick(alreadyLatestQuips) }
+
 // --- Status emoji ---
 
 // StatusEmoji returns an emoji for a project status string.

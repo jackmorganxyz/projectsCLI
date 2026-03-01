@@ -573,6 +573,79 @@ Move a project between folders or to the top level.
 
 ---
 
+## `upgrade`
+
+Upgrade the CLI binary to the latest GitHub release.
+
+### Arguments
+
+None.
+
+### Flags
+
+None (inherits global `--json` flag).
+
+### JSON Output
+
+**Upgrade performed:**
+```json
+{
+  "status": "upgraded",
+  "current_version": "0.3.0",
+  "latest_version": "0.4.0",
+  "method": "binary",
+  "message": "Upgraded from v0.3.0 to v0.4.0"
+}
+```
+
+**Already up to date:**
+```json
+{
+  "status": "up_to_date",
+  "current_version": "0.4.0",
+  "latest_version": "0.4.0"
+}
+```
+
+**Dev build:**
+```json
+{
+  "status": "dev_build",
+  "current_version": "dev",
+  "latest_version": "0.4.0",
+  "message": "Running a dev build, skipping upgrade"
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | string | `upgraded`, `up_to_date`, or `dev_build` |
+| `current_version` | string | Currently installed version |
+| `latest_version` | string | Latest available version on GitHub |
+| `method` | string | `binary` or `homebrew` (only present when `status` is `upgraded`) |
+| `message` | string | Human-readable description (omitted when not applicable) |
+
+### Behavior
+
+1. Fetches latest release from `https://api.github.com/repos/jackmorganxyz/projectsCLI/releases/latest`
+2. Compares current version (embedded at build time via ldflags) with latest
+3. If `version == "dev"`: warns that dev builds cannot be upgraded
+4. If already on latest: prints friendly message and exits
+5. Detects installation method by resolving the binary path:
+   - Path contains `homebrew`, `cellar`, or `linuxbrew` → delegates to `brew upgrade jackmorganxyz/tap/projects`
+   - Otherwise → downloads the matching archive (`projects_{version}_{os}_{arch}.tar.gz`), extracts binary, atomically replaces current binary
+6. If the binary's directory is not writable, returns an error suggesting `sudo`
+
+### Requirements
+
+- Internet access to reach GitHub API and download releases
+- For Homebrew installs: `brew` CLI available on PATH
+- For direct binary installs: write access to the binary's directory (or `sudo`)
+
+---
+
 ## Data Schemas
 
 ### ProjectMeta Fields

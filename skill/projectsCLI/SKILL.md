@@ -35,6 +35,7 @@ Use projects when the user wants to:
 - Update project metadata (title, status, tags, description) programmatically
 - Edit project metadata or notes
 - Open a project folder in the OS file manager
+- Upgrade the CLI to the latest version
 
 ## Installation Check
 
@@ -72,6 +73,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 | `folder list` | `folder ls` | List configured folders |
 | `folder remove <name>` | `folder rm` | Remove a folder from config |
 | `move <slug>` | — | Move a project to a different folder |
+| `upgrade` | — | Upgrade the CLI binary to the latest release |
 
 ## Global Flags
 
@@ -383,6 +385,33 @@ projects folder remove work --json
 ```
 
 Does not delete the directory or its projects.
+
+## Upgrading the CLI
+
+```sh
+projects upgrade --json
+```
+
+Checks GitHub for the latest release and upgrades the binary in place. Auto-detects installation method:
+- **Homebrew** — delegates to `brew upgrade jackmorganxyz/tap/projects`
+- **Direct binary** — downloads the matching release archive and atomically replaces the binary
+
+**JSON response** (upgrade available):
+```json
+{"status": "upgraded", "current_version": "0.3.0", "latest_version": "0.4.0", "method": "binary", "message": "Upgraded from v0.3.0 to v0.4.0"}
+```
+
+**JSON response** (already up to date):
+```json
+{"status": "up_to_date", "current_version": "0.4.0", "latest_version": "0.4.0"}
+```
+
+**JSON response** (dev build):
+```json
+{"status": "dev_build", "current_version": "dev", "latest_version": "0.4.0", "message": "Running a dev build, skipping upgrade"}
+```
+
+**Note**: May require `sudo` if the binary is installed in a directory that needs elevated permissions (e.g. `/usr/local/bin`).
 
 ## Configuration
 
