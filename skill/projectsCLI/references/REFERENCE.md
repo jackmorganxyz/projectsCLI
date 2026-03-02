@@ -124,7 +124,7 @@ Display project details.
 
 ### JSON Output
 
-Same shape as a single element from `list` output — object with `meta`, `body`, `dir`.
+Same shape as a single element from `list` output — object with `meta`, `body`, `dir`, and optional `folder`.
 
 ### Behavior
 
@@ -171,6 +171,8 @@ Output project data for agent/script consumption.
 }
 ```
 
+`folder` is included in the JSON object when the project lives in a configured folder.
+
 **`--export`**:
 ```sh
 export PROJECT_SLUG="my-project"
@@ -199,7 +201,7 @@ PROJECT_GIT_REMOTE="https://github.com/user/my-project"  # only if remote is set
 
 ## `edit <slug>`
 
-Interactively browse project files and choose to edit manually (in an editor) or via an AI agent.
+Interactively browse project files and open a selected file in an editor.
 
 ### Arguments
 
@@ -211,16 +213,16 @@ Interactively browse project files and choose to edit manually (in an editor) or
 
 | Flag | Type | Default | Description |
 |------|------|---------|-------------|
-| `--editor` | string | `""` | Editor command to use (bypasses edit mode picker and editor picker) |
+| `--editor` | string | `""` | Editor command to use (bypasses the editor picker, but not the interactive file browser) |
 | `--editor-picker` | bool | `false` | Force re-showing the editor selection prompt (ignore saved preference) |
 
 ### Behavior
 
-- **Interactive**: Presents a file browser to navigate the project directory. After selecting a file, shows an edit mode picker:
-  - **Manual edit** — opens the file in the user's preferred editor. On first run (or with `--editor-picker`), shows a picker of auto-detected installed editors labeled as `(terminal)` or `(GUI)`. The choice is saved to `config.editor`.
-  - **Agent edit** — spawns an AI agent (Claude Code or Codex CLI) to edit the file. The user selects an agent (if multiple are installed), provides a text prompt describing the changes, and the agent runs in the project directory. This option only appears when at least one AI agent is installed.
+- **Interactive**: Presents a file browser to navigate the project directory. After selecting a file, opens it in the resolved editor.
+- **Saved editor**: If `config.editor` is already set and still installed, it is reused automatically unless `--editor-picker` is passed.
+- **First interactive run** (or `--editor-picker`): shows a picker of auto-detected installed editors labeled as `(terminal)` or `(GUI)`. The choice is saved to `config.editor`.
 - **Non-interactive**: Opens `PROJECT.md` with the saved `config.editor` (defaults to `$EDITOR` or `vim`).
-- **`--editor` flag**: Uses the specified editor command without prompting and without saving to config. Skips the edit mode picker.
+- **`--editor` flag**: Uses the specified editor command without prompting and without saving to config. In interactive mode, the file browser still runs first.
 - **`--editor-picker` flag**: Forces the editor selection prompt even if an editor is already saved in config. Useful for switching editors.
 
 ### Editor Detection
@@ -229,14 +231,6 @@ Auto-detects installed editors by platform:
 - **macOS**: GUI apps via Spotlight (`mdfind`) — Cursor, VS Code, Sublime Text, BBEdit, Zed, TextEdit. CLI editors via `PATH` — nvim, vim, nano, emacs, micro, hx. GUI editors are properly detected for saved preference recall using `IsInstalled()` (not just PATH lookup).
 - **Linux**: GUI editors via `PATH` — code, cursor, subl, zed, kate, gedit, gnome-text-editor. Same CLI editors.
 - **Windows**: GUI editors via `PATH` — code, cursor, subl, notepad++, notepad. Same CLI editors.
-
-### AI Agent Detection
-
-Detects installed AI coding agents:
-- **Claude Code** — detected via `claude` on PATH
-- **Codex CLI** — detected via `codex` on PATH
-
-If no agents are installed, the edit mode picker is skipped and the command goes directly to manual edit.
 
 ### File Browser
 
@@ -251,7 +245,6 @@ If no agents are installed, the edit mode picker is skipped and the command goes
 - Saves the editor choice to `config.editor` on first interactive pick
 - Terminal editors (vim, nano, etc.) run in the foreground (blocking)
 - GUI editors (VS Code, Cursor, etc.) launch in the background
-- Agent edit spawns an AI agent in the foreground (blocking) with stdin/stdout/stderr attached
 
 ---
 
@@ -483,7 +476,8 @@ Subcommands: `add`, `list` (`ls`), `remove` (`rm`).
 #### Behavior
 
 - If `--account` is omitted and `gh` is authenticated with multiple accounts: shows interactive picker
-- If `--account` is omitted and `gh` has exactly one account: auto-selects it
+- If `--account` is omitted and `gh` has exactly one account: auto-selects it in interactive mode
+- If `--account` is omitted in non-interactive mode: returns an error requiring `--account` (even if accounts are available)
 - If `--account` is omitted and `gh` is not available: returns error requiring `--account`
 - Warns (does not block) if the specified account isn't found in `gh auth`
 - Creates the folder subdirectory under the projects directory
@@ -707,7 +701,7 @@ github_account = "my-gh-user"
 
 ### Registry File
 
-`~/.projects/projects/PROJECTS.md` — Auto-generated markdown table of all projects. Regenerated on `create` and `delete`.
+`~/.projects/projects/PROJECTS.md` — Auto-generated markdown table of all projects. Regenerated on `create`, `delete`, `update`, and `move`.
 
 ---
 

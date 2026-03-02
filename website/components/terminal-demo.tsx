@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface Command {
   prompt: string;
@@ -119,6 +119,8 @@ export function TerminalDemo() {
     { prompt: string; output: string[] }[]
   >([]);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const cmd = COMMANDS[commandIndex];
 
   const advanceCommand = useCallback(() => {
@@ -135,6 +137,14 @@ export function TerminalDemo() {
     setOutputLines([]);
     setPhase("typing");
   }, [commandIndex, cmd.prompt, outputLines]);
+
+  // Auto-scroll to bottom as content grows
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [history, charIndex, outputLines]);
 
   // Typing phase
   useEffect(() => {
@@ -180,7 +190,10 @@ export function TerminalDemo() {
   }, [phase, advanceCommand]);
 
   return (
-    <div className="text-[13px] md:text-sm">
+    <div
+      ref={scrollRef}
+      className="text-[13px] md:text-sm h-[280px] md:h-[320px] overflow-y-auto scrollbar-hide"
+    >
       {/* History */}
       {history.map((entry, i) => (
         <div key={i} className="mb-1">

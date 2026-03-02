@@ -1,6 +1,6 @@
 ---
 name: projectsCLI
-description: Manage projects with projectsCLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Supports AI agent integration (Claude Code, Codex CLI) for scaffolding and editing. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
+description: Manage projects with projectsCLI — scaffold, list, view, edit, open, push, delete, and organize projects by GitHub account with folders. Supports optional AI agent integration (Claude Code, Codex CLI) when scaffolding new projects. Use this skill when the user wants to create a new project, organize existing projects, manage multi-account GitHub setups, check project health, push to GitHub, or work with projects commands and project metadata.
 license: MIT
 compatibility: Requires projects binary installed. Optional gh CLI for GitHub integration.
 metadata:
@@ -25,7 +25,7 @@ You are working with **projectsCLI**, a terminal-native project manager. It scaf
 
 Use projects when the user wants to:
 - Create or scaffold a new project
-- List, view, or search across their projects
+- List, view, or inspect their projects
 - Check the health/status of projects (git state, remotes, uncommitted changes)
 - Push a project to GitHub (init, commit, create repo, push — all in one command)
 - Organize projects by GitHub account using folders
@@ -62,7 +62,7 @@ curl -sSL https://raw.githubusercontent.com/jackmorganxyz/projectsCLI/main/insta
 | `create [slug]` | — | Scaffold a new project (slug auto-generated from `--title` if omitted). Optionally spawn an AI agent to fill out the scaffold. |
 | `list` | `ls` | List all projects (TUI or JSON). In TUI mode, selecting a project shows a command picker. |
 | `view <slug>` | — | View project details |
-| `edit <slug>` | — | Browse project files, then choose manual edit (in an editor) or agent edit (AI-assisted via prompt). `--editor` to override, `--editor-picker` to re-pick editor. |
+| `edit <slug>` | — | Browse project files and open a selected file in an editor. `--editor` overrides the editor command, `--editor-picker` re-shows the editor picker. |
 | `open <slug>` | — | Open project folder in OS file manager (Finder, Explorer, etc.) |
 | `load <slug>` | — | Export project data (JSON, shell vars) |
 | `delete <slug>` | `rm` | Delete a project |
@@ -136,7 +136,9 @@ projects create --title "My API" --tags "go,api" --json
 {"status": "created", "slug": "my-api", "dir": "/path/to/my-api", "created_at": "2025-02-25T00:00:00Z"}
 ```
 
-**Side effects**: Creates directory tree (`docs/`, `memory/`, `context/`, `tasks/`, `code/`, `private/`), writes `PROJECT.md` and template files, optionally runs `git init`.
+If `--folder` is used, the JSON response also includes `folder`.
+
+**Side effects**: Creates directory tree (`docs/`, `memory/`, `context/`, `tasks/`, `code/`, `private/`), writes `PROJECT.md` plus template files (`USAGE.md`, `memory/MEMORY.md`, `context/CONTEXT.md`, `tasks/TODO.md`, `docs/README.md`, `.gitignore`), optionally runs `git init` + `git add -A` + `git commit` when `auto_git_init` is enabled, and regenerates `PROJECTS.md`.
 
 **AI agent integration**: In interactive mode, if Claude Code (`claude`) or Codex CLI (`codex`) is installed, the user is prompted to optionally spawn an AI agent to fill out the scaffolded files. The user provides a text prompt describing what the agent should do, and the agent runs in the project directory.
 
@@ -146,7 +148,7 @@ projects create --title "My API" --tags "go,api" --json
 projects ls --json
 ```
 
-**JSON response**: Array of project objects, each with `meta`, `body`, and `dir` fields. Note: `tags`, `description`, `git_remote`, and `body` are omitted from JSON when empty.
+**JSON response**: Array of project objects, each with `meta`, `body`, and `dir` fields. `folder` is included when the project lives in a configured folder. Note: `tags`, `description`, `git_remote`, `body`, and `folder` are omitted from JSON when empty.
 
 ```json
 [{"meta": {"title": "My API", "slug": "my-api", "status": "active", "tags": ["go"], "description": "...", "created_at": "...", "updated_at": "...", "git_remote": "..."}, "body": "# My API\n...", "dir": "/path/to/my-api"}]
@@ -173,6 +175,8 @@ projects status --json
 [{"slug": "my-api", "title": "My API", "status": "active", "has_git": true, "has_remote": true, "uncommitted": false, "has_project_md": true}]
 ```
 
+`folder` is also included when the project lives in a configured folder.
+
 **Useful queries**:
 ```sh
 # Projects with uncommitted changes
@@ -193,7 +197,7 @@ projects push <slug> -m "commit message" --json
 - `--private` — Create private GitHub repo (default: `true`)
 - `--no-github` — Skip GitHub repo creation
 
-**Workflow**: git init (if needed) -> git add -A -> git commit -> if project is in a folder: `gh auth switch` to the folder's account -> if no remote: `gh repo create --source --push` / if remote exists: `git push -u origin <branch>`
+**Workflow**: git init (if needed) -> git add -A -> git commit (only if there are uncommitted changes) -> if project is in a folder: `gh auth switch` to the folder's account -> if no remote: `gh repo create --source --push` / if remote exists: `git push -u origin <branch>`
 
 **Requires**: `gh` CLI installed and authenticated for GitHub repo creation. For folder-based projects, the associated account must be authenticated in `gh auth`.
 
@@ -227,7 +231,7 @@ projects update my-api --title "My API v2" --tags "go,api,v2" --json
 {"status": "updated", "slug": "my-api", "updated_at": "2025-02-25T00:00:00Z"}
 ```
 
-**Side effects**: Updates `PROJECT.md` frontmatter and regenerates `PROJECTS.md` registry.
+**Side effects**: Updates `PROJECT.md` frontmatter, sets `updated_at`, and regenerates `PROJECTS.md` registry.
 
 ## Extracting Specific Fields
 
@@ -279,23 +283,22 @@ projects delete <slug> --force --json
 ## Editing a Project File
 
 ```sh
-projects edit <slug>                    # interactive file browser + edit mode picker
-projects edit <slug> --editor vim       # skip edit mode and editor picker, use vim
+projects edit <slug>                 # interactive file browser, then open selected file
+projects edit <slug> --editor vim    # use vim for this run (still shows file browser in interactive mode)
 projects edit <slug> --editor-picker    # force re-showing the editor picker
 ```
 
-Interactively browse project files and choose an edit mode:
+Interactively browse project files, select a file, then open it in an editor:
 
-1. **Manual edit** — open the file in your preferred editor. On first run, auto-detects installed editors (Cursor, VS Code, TextEdit, Vim, Nano, etc.) and prompts the user to pick one. The choice is saved to `config.editor`. Editors are labeled as `(terminal)` or `(GUI)` in the picker.
-2. **Agent edit** — spawn an AI agent (Claude Code or Codex CLI) to edit the file. The user provides a text prompt describing the changes, and the agent runs in the project directory. This option only appears when at least one AI agent is installed.
-
-In non-interactive mode, defaults to opening `PROJECT.md` with the saved editor.
+1. On first interactive run, `projects` auto-detects installed editors (Cursor, VS Code, TextEdit, Vim, Nano, etc.) and prompts the user to pick one. The choice is saved to `config.editor`. Editors are labeled as `(terminal)` or `(GUI)` in the picker.
+2. On later interactive runs, the saved editor is reused unless `--editor-picker` is passed.
+3. In non-interactive mode, `projects edit` opens `PROJECT.md` with the saved editor (defaults to `$EDITOR` or `vim`).
 
 **Flags**:
-- `--editor <command>` — override saved editor for a single invocation (skips edit mode picker)
+- `--editor <command>` — override the saved editor for a single invocation (bypasses the editor picker, but not the interactive file browser)
 - `--editor-picker` — force re-showing the editor selection even if a preference is saved
 
-**Note:** This command is interactive — for agents, use direct file reads/writes on project files instead.
+**Note:** This command does not spawn an AI edit flow. For agents, use direct file reads/writes on project files instead.
 
 ## Opening a Project Folder
 
@@ -348,9 +351,9 @@ Folders let users organize projects by GitHub account. When pushing, the CLI aut
 ### Set up folders
 ```sh
 # Interactive — picks from gh auth accounts
-projects folder add work --json
+projects folder add work
 
-# Explicit account
+# Explicit account (required for JSON / non-interactive mode)
 projects folder add personal --account my-gh-user --json
 ```
 
@@ -358,6 +361,8 @@ projects folder add personal --account my-gh-user --json
 ```json
 {"status": "created", "folder": "work", "github_account": "work-org", "path": "/path/to/projects/work"}
 ```
+
+If `--account` is omitted, interactive account selection only works in TTY mode. In `--json` / non-interactive mode, pass `--account`.
 
 ### Create projects in a folder
 ```sh
